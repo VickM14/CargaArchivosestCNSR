@@ -1,33 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8" />
-    <title>Panel Web - Carga y Administración</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    />
-
-    <link rel="stylesheet" href="css/layout.css" />
-    <link rel="stylesheet" href="css/components.css" />
+    <title>Panel Web - Carga y Administración</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="css/theme.css" />
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Panel Web Profesional</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+                aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarMain">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <span class="nav-link disabled">Demo Responsivo</span>
-                    </li>
-                </ul>
-            </div>
         </div>
     </nav>
 
@@ -47,13 +36,75 @@
                     </li>
                 </ul>
                 <hr class="border-secondary mt-4" />
-                <div class="mt-auto small text-gray-400">
-                    <span>Diseño moderno · Bootstrap 5</span>
-                </div>
+                <div class="mt-auto small text-gray-400">Diseño moderno · Bootstrap 5</div>
             </nav>
 
             <main class="col-12 col-md-9 col-lg-10 content-wrapper">
                 <section id="section-upload" class="section active">
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-body py-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <h6 class="mb-0">Resumen de procesamiento</h6>
+                                    <small class="text-muted">Periodo y estado de la carga.</small>
+                                </div>
+                                <span class="badge text-bg-info" id="badgeEstadoCarga">Pendiente</span>
+                            </div>
+
+                            <div class="row g-2">
+                                <div class="col-12 col-md-4">
+                                    <div class="p-2 border rounded bg-light h-100">
+                                        <small class="text-muted d-block">Periodo</small>
+                                        <div class="fw-semibold" id="txtPeriodoActual">--</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-8">
+                                    <div class="p-2 border rounded bg-light h-100">
+                                        <small class="text-muted d-block mb-2">Resumen previo</small>
+                                        <div class="row g-2">
+                                            <div class="col-12 col-lg-6">
+                                                <div class="border rounded p-2 bg-white h-100">
+                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                        <span class="fw-semibold">Finanzas</span>
+                                                        <span class="badge text-bg-primary"
+                                                            id="badgeFinanzasPrevio">0%</span>
+                                                    </div>
+                                                    <div class="progress" style="height: 8px;">
+                                                        <div class="progress-bar bg-primary" id="barraFinanzasPrevio"
+                                                            style="width: 0%"></div>
+                                                    </div>
+                                                    <small class="text-muted d-block mt-1" id="txtFinanzasPrevio">0
+                                                        consultas · 0 cuadros</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-lg-6">
+                                                <div class="border rounded p-2 bg-white h-100">
+                                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                                        <span class="fw-semibold">Operaciones</span>
+                                                        <span class="badge text-bg-success"
+                                                            id="badgeOperacionesPrevio">0%</span>
+                                                    </div>
+                                                    <div class="progress" style="height: 8px;">
+                                                        <div class="progress-bar bg-success" id="barraOperacionesPrevio"
+                                                            style="width: 0%"></div>
+                                                    </div>
+                                                    <small class="text-muted d-block mt-1" id="txtOperacionesPrevio">0
+                                                        consultas · 0 cuadros</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <small class="text-muted d-block mt-2" id="txtUltimaCarga">Sin registros
+                                            previos</small>
+                                        <div class="progress mt-2" style="height: 8px;">
+                                            <div class="progress-bar" id="barraProgresoCarga" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="card card-modern">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <div>
@@ -61,137 +112,129 @@
                                 <small class="text-muted">Selección de archivos y consulta a base de datos SQL.</small>
                             </div>
                         </div>
+
                         <div class="card-body">
                             <ul class="nav nav-tabs" id="uploadTabs" role="tablist">
+                                
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="tab-files-tab" data-bs-toggle="tab" data-bs-target="#tab-files" type="button" role="tab" aria-controls="tab-files" aria-selected="true">
-                                        Selección y carga de archivos
-                                    </button>
+                                    <button class="nav-link active" id="tab-files-tab" data-bs-toggle="tab"
+                                        data-bs-target="#tab-files" type="button" role="tab">Selección y carga de
+                                        archivos</button>
                                 </li>
+
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="tab-sql-tab" data-bs-toggle="tab" data-bs-target="#tab-sql" type="button" role="tab" aria-controls="tab-sql" aria-selected="false">
-                                        Dashboard SQL
-                                    </button>
+                                    <button class="nav-link" id="tab-sql-tab" data-bs-toggle="tab"
+                                        data-bs-target="#tab-sql" type="button" role="tab">Dashboard SQL</button>
                                 </li>
+                                
                             </ul>
 
                             <div class="tab-content tab-container" id="uploadTabsContent">
-                                <div class="tab-pane fade show active" id="tab-files" role="tabpanel" aria-labelledby="tab-files-tab">
+                                <div class="tab-pane fade show active" id="tab-files" role="tabpanel">
                                     <div class="row mt-3">
                                         <div class="col-12 col-lg-6 mb-3">
                                             <h6 class="mb-2">Seleccionar archivos</h6>
-                                            <p class="text-muted mb-3">Puedes seleccionar archivos desde el explorador o arrastrarlos directamente sobre el área de carga.</p>
-
+                                            <p class="text-muted mb-3">Puedes seleccionar archivos desde el explorador o
+                                                arrastrarlos directamente sobre el área de carga.</p>
                                             <div class="mb-3">
                                                 <label class="form-label">Seleccionar archivos:</label>
                                                 <input type="file" id="fileInput" class="form-control" multiple />
                                             </div>
-
-                                            <button id="btnUpload" class="btn btn-primary w-100 mb-3" type="button">
-                                                Cargar al repositorio (Demo)
-                                            </button>
-
-                                            <button id="btnVerCuadrosArchivos" class="btn btn-outline-info w-100 mb-3 d-none" type="button">
-                                                Ver cuadros
-                                            </button>
-
+                                            <button id="btnUpload" class="btn btn-primary w-100 mb-3"
+                                                type="button">Cargar al repositorio (Demo)</button>
+                                            <button id="btnVerCuadrosArchivos"
+                                                class="btn btn-outline-info w-100 mb-3 d-none" type="button">Ver
+                                                cuadros</button>
                                             <div id="uploadSummary" class="alert alert-info d-none" role="alert">
                                                 <strong>Resumen de carga:</strong>
                                                 <div id="uploadSummaryText" class="mt-1"></div>
                                             </div>
                                         </div>
-
                                         <div class="col-12 col-lg-6 mb-3">
                                             <h6 class="mb-2">Arrastrar y soltar (Drag & Drop)</h6>
-                                            <p class="text-muted mb-3">Arrastra uno o varios archivos sobre el área inferior para agregarlos a la lista de carga.</p>
-
+                                            <p class="text-muted mb-3">Arrastra uno o varios archivos sobre el área
+                                                inferior para agregarlos a la lista de carga.</p>
                                             <div id="dropArea" class="drop-area">
                                                 <p class="mb-1 fw-semibold">Arrastra aquí tus archivos</p>
-                                                <small class="text-muted">Se agregarán a la lista de archivos seleccionados.</small>
+                                                <small class="text-muted">Se agregarán a la lista de archivos
+                                                    seleccionados.</small>
                                             </div>
-
                                             <div class="file-list d-none" id="fileList"></div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="tab-pane fade" id="tab-sql" role="tabpanel" aria-labelledby="tab-sql-tab">
+                                <div class="tab-pane fade" id="tab-sql" role="tabpanel">
                                     <div class="row mt-3">
                                         <div class="col-12 mb-3">
-                                            <div class="row" id="dashboardResumen" style="display: none;">
-                                                <div class="col-6 col-lg-3 mb-3">
-                                                    <div class="card card-resumen">
+                                            <div class="row row-cols-1 row-cols-md-4 g-3" id="dashboardResumen"
+                                                style="display: none;">
+
+                                                <div class="col">
+                                                    <div class="card card-resumen h-100">
                                                         <div class="card-body text-center">
                                                             <h6 class="text-muted mb-1">Consultas seleccionadas</h6>
                                                             <h2 class="mb-0" id="resumenConsultas">0</h2>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-6 col-lg-3 mb-3">
-                                                    <div class="card card-resumen">
+
+
+                                                <div class="col">
+                                                    <div class="card card-resumen h-100 resumen-card" data-filtro="ok">
                                                         <div class="card-body text-center">
                                                             <h6 class="text-muted mb-1">Cuadros OK</h6>
                                                             <h2 class="mb-0 text-success" id="resumenOk">0</h2>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-6 col-lg-3 mb-3">
-                                                    <div class="card card-resumen">
-                                                        <div class="card-body text-center">
-                                                            <h6 class="text-muted mb-1">Cuadros parciales</h6>
-                                                            <h2 class="mb-0 text-warning" id="resumenParcial">0</h2>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-6 col-lg-3 mb-3">
-                                                    <div class="card card-resumen">
+
+                                                <div class="col">
+                                                    <div class="card card-resumen h-100 resumen-card"
+                                                        data-filtro="error">
                                                         <div class="card-body text-center">
                                                             <h6 class="text-muted mb-1">Cuadros con error</h6>
                                                             <h2 class="mb-0 text-danger" id="resumenError">0</h2>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col-12 mb-3">
-                                                    <div class="card card-resumen">
+
+                                                <div class="col">
+                                                    <div class="card card-resumen h-100 resumen-card"
+                                                        data-filtro="todos">
                                                         <div class="card-body text-center">
-                                                            <h6 class="text-muted mb-1">Mostrar todos</h6>
+                                                            <h6 class="text-muted mb-1">Mostrar todo</h6>
                                                             <h2 class="mb-0 text-primary" id="resumenTodos">35</h2>
                                                         </div>
                                                     </div>
                                                 </div>
+
+                                          
+
                                             </div>
                                         </div>
 
                                         <div class="col-12 col-lg-5 mb-3">
                                             <h6 class="mb-2">Consultas configuradas</h6>
-                                            <p class="text-muted mb-3">Selecciona las consultas que deseas ejecutar y presiona el botón Ejecutar.</p>
-
+                                            <p class="text-muted mb-3">Selecciona las consultas que deseas ejecutar y
+                                                presiona el botón Ejecutar.</p>
                                             <div class="d-flex gap-2 mb-3">
-                                                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#modalNuevaConsulta">
-                                                    Nueva consulta
-                                                </button>
-                                                <button type="button" class="btn btn-outline-secondary w-100" id="btnSeleccionarTodos">
-                                                    Seleccionar todos
-                                                </button>
+                                                <button type="button" class="btn btn-outline-primary w-100"
+                                                    data-bs-toggle="modal" data-bs-target="#modalNuevaConsulta">Nueva
+                                                    consulta</button>
+                                                <button type="button" class="btn btn-outline-secondary w-100"
+                                                    id="btnSeleccionarTodos">Seleccionar todos</button>
                                             </div>
-
                                             <div class="list-group mb-3" id="listaConsultasDashboard"></div>
-
-                                            <button id="btnEjecutarConsultas" class="btn btn-success w-100" type="button">
-                                                Ejecutar
-                                            </button>
+                                            <button id="btnEjecutarConsultas" class="btn btn-success w-100"
+                                                type="button">Ejecutar</button>
                                         </div>
 
-                                        <div class="col-12 col-lg-7 mb-3" id="seccionCuadrosDashboard" style="display: none;">
+                                        <div class="col-12 col-lg-7 mb-3" id="seccionCuadrosDashboard"
+                                            style="display: none;">
                                             <h6 class="mb-2">Cuadros estadísticos</h6>
-                                            <p class="text-muted mb-3">
-                                                Filtra el listado haciendo clic en las tarjetas del resumen:
-                                                <span class="text-success fw-semibold">Cuadros OK</span>,
-                                                <span class="text-warning fw-semibold">Cuadros parciales</span>,
-                                                <span class="text-danger fw-semibold">Cuadros con error</span> o
-                                                <span class="text-primary fw-semibold">Mostrar todos</span>.
-                                            </p>
-
+                                            <p class="text-muted mb-3">Filtra el listado haciendo clic en las tarjetas
+                                                del resumen.</p>
                                             <div class="table-responsive mb-3">
                                                 <table class="table table-striped table-hover align-middle">
                                                     <thead class="table-light">
@@ -207,6 +250,7 @@
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -214,24 +258,16 @@
 
                 <section id="section-editor" class="section d-none">
                     <div class="card card-modern">
-                        <div class="card-header">
-                            <h5 class="mb-0">Editor de páginas web</h5>
-                            <small class="text-muted">Sección reservada para futuras funcionalidades.</small>
-                        </div>
                         <div class="card-body">
-                            <p class="text-muted">Aquí podrás integrar tu editor de páginas web (HTML, CSS, JS).</p>
+                            <h5>Editor de páginas web</h5>
                         </div>
                     </div>
                 </section>
 
                 <section id="section-users" class="section d-none">
                     <div class="card card-modern">
-                        <div class="card-header">
-                            <h5 class="mb-0">Administración de usuarios</h5>
-                            <small class="text-muted">Sección reservada para la gestión de usuarios del sistema.</small>
-                        </div>
                         <div class="card-body">
-                            <p class="text-muted">Espacio para altas, bajas, roles y permisos de usuarios.</p>
+                            <h5>Administración de usuarios</h5>
                         </div>
                     </div>
                 </section>
@@ -239,136 +275,100 @@
         </div>
     </div>
 
-    <div class="modal fade" id="modalNuevaConsulta" tabindex="-1" aria-labelledby="modalNuevaConsultaLabel" aria-hidden="true">
+    <div class="modal fade" id="modalNuevaConsulta" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalNuevaConsultaLabel">Configurar consulta SQL</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <h5 class="modal-title">Configurar consulta SQL</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <ul class="nav nav-tabs mb-3" id="modalConsultaTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="tab-conexion-tab" data-bs-toggle="tab" data-bs-target="#tab-conexion" type="button" role="tab" aria-controls="tab-conexion" aria-selected="true">
-                                Conexión SQL
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="tab-tablas-tab" data-bs-toggle="tab" data-bs-target="#tab-tablas" type="button" role="tab" aria-controls="tab-tablas" aria-selected="false">
-                                Tablas y campos
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="tab-consulta-tab" data-bs-toggle="tab" data-bs-target="#tab-consulta" type="button" role="tab" aria-controls="tab-consulta" aria-selected="false">
-                                Consulta SQL
-                            </button>
-                        </li>
+                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab"
+                                data-bs-target="#tab-conexion" type="button">Conexión SQL</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-tablas"
+                                type="button">Tablas y campos</button></li>
+                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab"
+                                data-bs-target="#tab-consulta" type="button">Consulta SQL</button></li>
                     </ul>
-
-                    <div class="tab-content" id="modalConsultaTabsContent">
-                        <div class="tab-pane fade show active" id="tab-conexion" role="tabpanel" aria-labelledby="tab-conexion-tab">
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="tab-conexion">
                             <div class="row g-3">
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label">Servidor</label>
-                                    <input type="text" class="form-control" id="sqlServidor" placeholder="Ej. localhost" />
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label">Base de datos</label>
-                                    <input type="text" class="form-control" id="sqlBaseDatos" placeholder="Ej. mi_base" />
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label">Usuario</label>
-                                    <input type="text" class="form-control" id="sqlUsuario" placeholder="Ej. sa" />
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label">Contraseña</label>
-                                    <input type="password" class="form-control" id="sqlContrasena" placeholder="********" />
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <label class="form-label">Puerto</label>
-                                    <input type="text" class="form-control" id="sqlPuerto" placeholder="Ej. 1433" />
-                                </div>
+                                <div class="col-12 col-md-6"><label class="form-label">Servidor</label><input
+                                        type="text" class="form-control" id="sqlServidor" /></div>
+                                <div class="col-12 col-md-6"><label class="form-label">Base de datos</label><input
+                                        type="text" class="form-control" id="sqlBaseDatos" /></div>
+                                <div class="col-12 col-md-6"><label class="form-label">Usuario</label><input type="text"
+                                        class="form-control" id="sqlUsuario" /></div>
+                                <div class="col-12 col-md-6"><label class="form-label">Contraseña</label><input
+                                        type="password" class="form-control" id="sqlContrasena" /></div>
+                                <div class="col-12 col-md-6"><label class="form-label">Puerto</label><input type="text"
+                                        class="form-control" id="sqlPuerto" /></div>
                             </div>
-                            <div class="d-flex gap-2 mt-3">
-                                <button type="button" class="btn btn-primary" id="btnConectarSQL">
-                                    Conectar
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary" id="btnLimpiarConexion">
-                                    Limpiar
-                                </button>
+                            <div class="d-flex gap-2 mt-3 flex-wrap">
+                                <button type="button" class="btn btn-primary" id="btnConectarSQL">Conectar</button>
+                                <button type="button" class="btn btn-outline-success" id="btnProbarConexion">Probar
+                                    conexión</button>
+                                <button type="button" class="btn btn-outline-secondary"
+                                    id="btnLimpiarConexion">Limpiar</button>
                             </div>
-                            <div id="mensajeConexion" class="alert d-none mt-3" role="alert"></div>
+                            <div id="mensajeConexion" class="alert d-none mt-3"></div>
                         </div>
-
-                        <div class="tab-pane fade" id="tab-tablas" role="tabpanel" aria-labelledby="tab-tablas-tab">
-                            <p class="text-muted mb-3">Selecciona las tablas y campos que formarán parte de la consulta.</p>
-
+                        <div class="tab-pane fade" id="tab-tablas">
                             <div class="row g-3">
-                                <div class="col-12 col-md-5">
-                                    <label class="form-label">Tabla</label>
-                                    <select class="form-select" id="selectorTabla"></select>
-                                </div>
-                                <div class="col-12 col-md-7">
-                                    <label class="form-label">Campos disponibles</label>
-                                    <div class="border rounded p-2" style="max-height: 200px; overflow-y: auto;" id="listaCampos"></div>
+                                <div class="col-12 col-md-5"><label class="form-label">Tabla</label><select
+                                        class="form-select" id="selectorTabla"></select></div>
+                                <div class="col-12 col-md-7"><label class="form-label">Campos disponibles</label>
+                                    <div class="border rounded p-2" style="max-height: 200px; overflow-y: auto;"
+                                        id="listaCampos"></div>
                                 </div>
                             </div>
-
                             <div class="d-flex gap-2 mt-3">
-                                <button type="button" class="btn btn-outline-primary" id="btnAgregarCamposSeleccion">
-                                    Agregar campos a la consulta
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary" id="btnLimpiarCamposSeleccion">
-                                    Limpiar selección
-                                </button>
+                                <button type="button" class="btn btn-outline-primary"
+                                    id="btnAgregarCamposSeleccion">Agregar campos a la consulta</button>
+                                <button type="button" class="btn btn-outline-secondary"
+                                    id="btnLimpiarCamposSeleccion">Limpiar selección</button>
                             </div>
-
                             <div class="mt-3">
                                 <label class="form-label">Campos seleccionados para la consulta</label>
-                                <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;" id="camposSeleccionados"></div>
+                                <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;"
+                                    id="camposSeleccionados"></div>
                             </div>
                         </div>
-
-                        <div class="tab-pane fade" id="tab-consulta" role="tabpanel" aria-labelledby="tab-consulta-tab">
-                            <p class="text-muted mb-3">Visualiza y ajusta la consulta SQL generada a partir de los campos seleccionados.</p>
-
-                            <div class="mb-3">
-                                <label class="form-label">Nombre de la consulta</label>
-                                <input type="text" class="form-control" id="nombreConsulta" placeholder="Ej. Consulta de saldos julio" />
+                        <div class="tab-pane fade" id="tab-consulta">
+                            <div class="mb-3"><label class="form-label">Nombre de la consulta</label><input type="text"
+                                    class="form-control" id="nombreConsulta" /></div>
+                            <div class="mb-3"><label class="form-label">Descripción</label><textarea
+                                    class="form-control" id="descripcionConsulta" rows="2"></textarea></div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-md-6"><label class="form-label">Fecha inicial</label><input
+                                        type="date" class="form-control" id="fechaInicialConsulta" /></div>
+                                <div class="col-12 col-md-6"><label class="form-label">Fecha final</label><input
+                                        type="date" class="form-control" id="fechaFinalConsulta" /></div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Descripción</label>
-                                <textarea class="form-control" id="descripcionConsulta" rows="2" placeholder="Descripción breve de la consulta"></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Consulta SQL</label>
-                                <textarea class="form-control font-monospace" id="textoConsultaSQL" rows="8"></textarea>
-                            </div>
-
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-primary" id="btnGuardarConsulta">
-                                    Guardar consulta
-                                </button>
-                                <button type="button" class="btn btn-outline-secondary" id="btnActualizarConsulta">
-                                    Actualizar consulta seleccionada
-                                </button>
+                            <div class="mb-3"><label class="form-label">Consulta SQL</label><textarea
+                                    class="form-control font-monospace" id="textoConsultaSQL" rows="8"></textarea></div>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button type="button" class="btn btn-primary" id="btnGuardarConsulta">Guardar
+                                    consulta</button>
+                                <button type="button" class="btn btn-outline-secondary"
+                                    id="btnActualizarConsulta">Actualizar consulta seleccionada</button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-outline-secondary"
+                        data-bs-dismiss="modal">Cerrar</button></div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="modalVerTablaErrores" tabindex="-1" aria-labelledby="modalVerTablaErroresLabel" aria-hidden="true">
+    <div class="modal fade" id="modalVerTablaErrores" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalVerTablaErroresLabel">Detalle de errores</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <h5 class="modal-title">Detalle de errores</h5><button type="button" class="btn-close"
+                        data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <p class="text-muted mb-3" id="tituloErrorCuadro"></p>
@@ -376,6 +376,7 @@
                         <table class="table table-bordered table-sm align-middle">
                             <thead class="table-light">
                                 <tr>
+                                    <th>Registro</th>
                                     <th>Campo</th>
                                     <th>Valor actual</th>
                                     <th>Problema</th>
@@ -385,22 +386,18 @@
                         </table>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="modalCuadrosArchivos" tabindex="-1" aria-labelledby="modalCuadrosArchivosLabel" aria-hidden="true">
+    <div class="modal fade" id="modalCuadrosArchivos" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalCuadrosArchivosLabel">Cuadros estadísticos</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <h5 class="modal-title">Cuadros estadísticos</h5><button type="button" class="btn-close"
+                        data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="text-muted mb-3">Listado de 35 cuadros estadísticos. El checkbox indica si la información fue cargada correctamente.</p>
                     <div class="table-responsive">
                         <table class="table table-striped table-hover align-middle">
                             <thead class="table-light">
@@ -418,28 +415,26 @@
         </div>
     </div>
 
-    <div class="modal fade" id="modalExaminarCuadroArchivos" tabindex="-1" aria-labelledby="modalExaminarCuadroArchivosLabel" aria-hidden="true">
+    <div class="modal fade" id="modalExaminarCuadroArchivos" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalExaminarCuadroArchivosLabel">Examinar cuadro</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <h5 class="modal-title">Examinar cuadro</h5><button type="button" class="btn-close"
+                        data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <p class="mb-0" id="textoExaminarCuadroArchivos"></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="uploadToast" class="toast text-bg-success" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="3500">
+        <div id="uploadToast" class="toast text-bg-success" role="alert" aria-live="assertive" aria-atomic="true"
+            data-bs-autohide="true" data-bs-delay="3500">
             <div class="d-flex">
                 <div class="toast-body" id="uploadToastBody">Carga realizada correctamente.</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         </div>
     </div>
@@ -447,4 +442,5 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/app.js"></script>
 </body>
+
 </html>

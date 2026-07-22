@@ -81,3 +81,7 @@
 .toast-container {
     z-index: 1080;
 }
+
+#cuadrosDashboardBody td {
+    vertical-align: middle;
+}

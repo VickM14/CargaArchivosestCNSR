@@ -41,6 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const resumenTodos = document.getElementById("resumenTodos");
     const seccionCuadrosDashboard = document.getElementById("seccionCuadrosDashboard");
     const btnSeleccionarTodos = document.getElementById("btnSeleccionarTodos");
+    const btnGuardarCuadrosBD = document.getElementById("btnGuardarCuadrosBD");
 
     const btnConectarSQL = document.getElementById("btnConectarSQL");
     const btnProbarConexion = document.getElementById("btnProbarConexion");
@@ -245,7 +246,12 @@ document.addEventListener("DOMContentLoaded", () => {
             tr.innerHTML = `
                 <td><span class="badge ${item.estado === "error" ? "bg-danger" : "bg-success"}">${item.estado === "error" ? "Error" : "OK"}</span></td>
                 <td>${item.nombre}</td>
-                <td>${item.estado === "error" ? `<button type="button" class="btn btn-sm btn-outline-danger btn-ver-tabla" data-cuadro="${item.nombre}">Ver tabla</button>` : `<span class="text-muted small">Sin errores</span>`}</td>
+                <td>
+                    ${item.estado === "error"
+                        ? `<button type="button" class="btn btn-sm btn-outline-danger btn-ver-tabla" data-cuadro="${item.nombre}">Ver tabla</button>`
+                        : `<span class="text-muted small">Sin errores</span>`
+                    }
+                </td>
             `;
             cuadrosDashboardBody.appendChild(tr);
         });
@@ -253,7 +259,9 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.addEventListener("click", () => {
                 const cuadro = estadoCuadros.find((c) => c.nombre === btn.getAttribute("data-cuadro"));
                 if (!cuadro) return;
-                if (tituloErrorCuadro) tituloErrorCuadro.textContent = `El cuadro "${cuadro.nombre}" presenta los siguientes errores:`;
+                if (tituloErrorCuadro) {
+                    tituloErrorCuadro.textContent = `El cuadro "${cuadro.nombre}" presenta los siguientes errores:`;
+                }
                 if (tablaErroresBody) {
                     tablaErroresBody.innerHTML = cuadro.errores.map((err) => `<tr><td>${err.registro}</td><td>${err.campo}</td><td>${err.valor}</td><td>${err.problema}</td></tr>`).join("");
                 }
@@ -276,6 +284,23 @@ document.addEventListener("DOMContentLoaded", () => {
             ...calcularResumenPorArea(consultas, estadoCuadros)
         });
         renderCuadrosDashboard(filtroCuadrosActual);
+    }
+
+    function guardarCuadrosEnBD() {
+        const filtrados = filtroCuadrosActual === "todos"
+            ? estadoCuadros
+            : estadoCuadros.filter((c) => c.estado === filtroCuadrosActual);
+
+        if (filtrados.length === 0) {
+            alert("No hay cuadros para guardar con el filtro actual.");
+            return;
+        }
+
+        const total = filtrados.length;
+        const errores = filtrados.filter((c) => c.estado === "error").length;
+        const ok = filtrados.filter((c) => c.estado === "ok").length;
+
+        alert(`Guardando en BD ${total} cuadro(s): ${ok} OK y ${errores} con error.`);
     }
 
     menuLinks.forEach((link) => link.addEventListener("click", (e) => {
@@ -478,6 +503,8 @@ document.addEventListener("DOMContentLoaded", () => {
         renderCuadrosDashboard("todos");
         if (btnSeleccionarTodos) btnSeleccionarTodos.textContent = "Seleccionar todos";
     });
+
+    btnGuardarCuadrosBD?.addEventListener("click", guardarCuadrosEnBD);
 
     document.querySelectorAll(".resumen-card").forEach((card) => {
         card.addEventListener("click", () => {

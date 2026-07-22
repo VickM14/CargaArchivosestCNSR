@@ -85,3 +85,11 @@
 #cuadrosDashboardBody td {
     vertical-align: middle;
 }
+
+#listaConsultasDashboard .list-group-item {
+    flex-wrap: wrap;
+}
+
+#listaConsultasDashboard .form-check-label {
+    min-width: 0;
+}

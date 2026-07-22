@@ -58,6 +58,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnLimpiarCamposSeleccion = document.getElementById("btnLimpiarCamposSeleccion");
     const camposSeleccionados = document.getElementById("camposSeleccionados");
 
+    const mesesInicialesConsulta = document.getElementById("mesesInicialesConsulta");
+    const mesesFinalesConsulta = document.getElementById("mesesFinalesConsulta");
+
+    const ultimoDiaHabil = document.getElementById("ultimoDiaHabil");
+    const penultimoDiaHabil = document.getElementById("penultimoDiaHabil");
+
     const tablasEjemplo = [
         { nombre: "saldos", campos: ["id", "cuenta", "subcuenta", "fecha", "saldo_inicial", "saldo_final"] },
         { nombre: "movimientos", campos: ["id", "cuenta", "fecha", "concepto", "debe", "haber"] },
@@ -72,16 +78,16 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
 
     let consultas = [
-        { id: 1, nombre: "Consulta de Operaciones 1", descripcion: "Saldos iniciales y finales", sql: "SELECT * FROM saldos", servidor: "localhost", baseDatos: "contabilidad", usuario: "sa", contrasena: "****", puerto: "1433", tabla: "saldos", campos: ["id", "cuenta", "subcuenta", "fecha", "saldo_inicial", "saldo_final"] },
-        { id: 2, nombre: "Consulta de Operaciones 2", descripcion: "Movimientos por cuenta y subcuenta", sql: "SELECT * FROM movimientos", servidor: "servidor2", baseDatos: "contabilidad", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "movimientos", campos: ["id", "cuenta", "fecha", "concepto", "debe", "haber"] },
-        { id: 3, nombre: "Consulta de Finanzas 1", descripcion: "Resumen por fondo", sql: "SELECT * FROM fondos", servidor: "localhost", baseDatos: "fondos_db", usuario: "sa", contrasena: "****", puerto: "1433", tabla: "fondos", campos: ["id", "fondo", "descripcion", "saldo"] },
-        { id: 4, nombre: "Consulta de Finanzas 2", descripcion: "Resumen por entidad", sql: "SELECT * FROM entidades", servidor: "servidor3", baseDatos: "entidades_db", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "entidades", campos: ["id", "entidad", "tipo", "estatus"] },
-        { id: 5, nombre: "Consulta de Operaciones 3", descripcion: "Cierre de cuentas", sql: "SELECT * FROM cierre_mensual", servidor: "localhost", baseDatos: "contabilidad", usuario: "sa", contrasena: "****", puerto: "1433", tabla: "cierre_mensual", campos: ["id", "mes", "anio", "cuenta", "saldo"] },
-        { id: 6, nombre: "Consulta de Finanzas 3", descripcion: "Resumen de operaciones", sql: "SELECT * FROM cierre_anual", servidor: "servidor4", baseDatos: "cierre_db", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "cierre_anual", campos: ["id", "anio", "cuenta", "saldo"] },
-        { id: 7, nombre: "Consulta de Operaciones 4", descripcion: "Registros con inconsistencias", sql: "SELECT * FROM errores", servidor: "localhost", baseDatos: "auditoria_db", usuario: "sa", contrasena: "****", puerto: "1433", tabla: "errores", campos: ["id", "tabla", "campo", "descripcion", "fecha"] },
-        { id: 8, nombre: "Consulta de Finanzas 4", descripcion: "Auditoría de cuentas clave", sql: "SELECT * FROM auditoria", servidor: "servidor5", baseDatos: "auditoria_db", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "auditoria", campos: ["id", "usuario", "accion", "fecha", "detalle"] },
-        { id: 9, nombre: "Consulta de Operaciones 5", descripcion: "Conciliación bancaria", sql: "SELECT * FROM conciliacion", servidor: "localhost", baseDatos: "bancos_db", usuario: "sa", contrasena: "****", puerto: "1433", tabla: "conciliacion", campos: ["id", "banco", "fecha", "concepto", "importe"] },
-        { id: 10, nombre: "Consulta de Finanzas 5", descripcion: "Reportes ejecutivos", sql: "SELECT * FROM reportes", servidor: "servidor6", baseDatos: "reportes_db", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "reportes", campos: ["id", "reporte", "fecha_generacion", "usuario"] }
+        { id: 1, nombre: "Consulta de Operaciones 1", descripcion: "Saldos iniciales y finales", sql: "SELECT * FROM saldos", servidor: "localhost", baseDatos: "contabilidad", usuario: "sa", contrasena: "****", puerto: "1433", tabla: "saldos", campos: ["id", "cuenta", "subcuenta", "fecha", "saldo_inicial", "saldo_final"], habilitada: true },
+        { id: 2, nombre: "Consulta de Operaciones 2", descripcion: "Movimientos por cuenta y subcuenta", sql: "SELECT * FROM movimientos", servidor: "servidor2", baseDatos: "contabilidad", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "movimientos", campos: ["id", "cuenta", "fecha", "concepto", "debe", "haber"], habilitada: true },
+        { id: 3, nombre: "Consulta de Finanzas 1", descripcion: "Resumen por fondo", sql: "SELECT * FROM fondos", servidor: "localhost", baseDatos: "fondos_db", usuario: "sa", contrasena: "****", puerto: "1433", tabla: "fondos", campos: ["id", "fondo", "descripcion", "saldo"], habilitada: true },
+        { id: 4, nombre: "Consulta de Finanzas 2", descripcion: "Resumen por entidad", sql: "SELECT * FROM entidades", servidor: "servidor3", baseDatos: "entidades_db", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "entidades", campos: ["id", "entidad", "tipo", "estatus"], habilitada: true },
+        { id: 5, nombre: "Consulta de Operaciones 3", descripcion: "Cierre de cuentas", sql: "SELECT * FROM cierre_mensual", servidor: "localhost", baseDatos: "contabilidad", usuario: "sa", contrasena: "****", puerto: "1433", tabla: "cierre_mensual", campos: ["id", "mes", "anio", "cuenta", "saldo"], habilitada: true },
+        { id: 6, nombre: "Consulta de Finanzas 3", descripcion: "Resumen de operaciones", sql: "SELECT * FROM cierre_anual", servidor: "servidor4", baseDatos: "cierre_db", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "cierre_anual", campos: ["id", "anio", "cuenta", "saldo"], habilitada: true },
+        { id: 7, nombre: "Consulta de Operaciones 4", descripcion: "Registros con inconsistencias", sql: "SELECT * FROM errores", servidor: "localhost", baseDatos: "auditoria_db", usuario: "sa", contrasena: "****", puerto: "1433", tabla: "errores", campos: ["id", "tabla", "campo", "descripcion", "fecha"], habilitada: true },
+        { id: 8, nombre: "Consulta de Finanzas 4", descripcion: "Auditoría de cuentas clave", sql: "SELECT * FROM auditoria", servidor: "servidor5", baseDatos: "auditoria_db", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "auditoria", campos: ["id", "usuario", "accion", "fecha", "detalle"], habilitada: true },
+        { id: 9, nombre: "Consulta de Operaciones 5", descripcion: "Conciliación bancaria", sql: "SELECT * FROM conciliacion", servidor: "localhost", baseDatos: "bancos_db", usuario: "sa", contrasena: "****", puerto: "1433", tabla: "conciliacion", campos: ["id", "banco", "fecha", "concepto", "importe"], habilitada: true },
+        { id: 10, nombre: "Consulta de Finanzas 5", descripcion: "Reportes ejecutivos", sql: "SELECT * FROM reportes", servidor: "servidor6", baseDatos: "reportes_db", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "reportes", campos: ["id", "reporte", "fecha_generacion", "usuario"], habilitada: true }
     ];
 
     let estadoCuadros = [];
@@ -89,6 +95,76 @@ document.addEventListener("DOMContentLoaded", () => {
     let consultaAEditarId = null;
     let selectedFiles = [];
     let filtroCuadrosActual = "todos";
+
+    function obtenerDiaHabilDesdeMes(mesNombre, tipoDia = "ultimo") {
+        const meses = {
+            "Enero": 0, "Febrero": 1, "Marzo": 2, "Abril": 3,
+            "Mayo": 4, "Junio": 5, "Julio": 6, "Agosto": 7,
+            "Septiembre": 8, "Octubre": 9, "Noviembre": 10, "Diciembre": 11
+        };
+
+        const ahora = new Date();
+        const anio = ahora.getFullYear();
+        const mes = meses[mesNombre];
+        if (mes === undefined) return "";
+
+        let fecha = new Date(anio, mes + 1, 0);
+
+        if (tipoDia === "penultimo") {
+            fecha.setDate(fecha.getDate() - 1);
+        }
+
+        while (fecha.getDay() === 0 || fecha.getDay() === 6) {
+            fecha.setDate(fecha.getDate() - 1);
+        }
+
+        return fecha.toLocaleDateString("es-ES");
+    }
+
+    function actualizarConsultaSQLConMes() {
+        const mesInicialSeleccionado = Array.from(
+            document.querySelectorAll("#mesesInicialesConsulta input:checked")
+        )[0]?.value;
+
+        const tipoDia = document.querySelector('input[name="diaHabilConsulta"]:checked')?.value || "ultimo";
+
+        if (!mesInicialSeleccionado || !textoConsultaSQL) return;
+
+        const fechaCalculada = obtenerDiaHabilDesdeMes(mesInicialSeleccionado, tipoDia);
+
+        textoConsultaSQL.value = `SELECT *\nFROM tu_tabla\nWHERE fecha = '${fechaCalculada}'`;
+    }
+
+    function renderMesesConsulta() {
+        const meses = [
+            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        ];
+
+        const mesActual = new Date().getMonth();
+        const mesAnterior = mesActual === 0 ? 11 : mesActual - 1;
+
+        const crearCheckMes = (mes, prefijo, idx, checked = false) => `
+        <div class="col">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="${mes}" id="${prefijo}${idx}" ${checked ? "checked" : ""}>
+                <label class="form-check-label" for="${prefijo}${idx}">${mes}</label>
+            </div>
+        </div>
+    `;
+
+        if (mesesInicialesConsulta) {
+            mesesInicialesConsulta.innerHTML = meses
+                .map((mes, idx) => crearCheckMes(mes, "mesIni", idx, idx === mesAnterior))
+                .join("");
+        }
+
+        if (mesesFinalesConsulta) {
+            mesesFinalesConsulta.innerHTML = meses
+                .map((mes, idx) => crearCheckMes(mes, "mesFin", idx, idx === mesAnterior))
+                .join("");
+        }
+    }
 
     function getMesAnteriorActual() {
         const fecha = new Date();
@@ -131,21 +207,42 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderConsultas() {
         if (!listaConsultasDashboard) return;
         listaConsultasDashboard.innerHTML = "";
-        consultas.forEach((q) => {
+
+        const consultasVisibles = consultas.filter((q) => q.habilitada !== false);
+
+        consultasVisibles.forEach((q) => {
             const div = document.createElement("div");
-            div.className = "list-group-item d-flex align-items-center";
+            div.className = "list-group-item d-flex align-items-center gap-2";
             div.innerHTML = `
-                <input class="form-check-input me-2" type="checkbox" value="${q.id}" id="chkConsulta${q.id}" />
-                <label class="form-check-label flex-grow-1" for="chkConsulta${q.id}">
-                    <div class="fw-semibold">${q.nombre}</div>
-                    <small class="text-muted">${q.descripcion}</small>
-                </label>
-                <button type="button" class="btn btn-sm btn-outline-primary btn-editar-consulta" data-id="${q.id}">Editar</button>
-            `;
+            <input class="form-check-input me-2" type="checkbox" value="${q.id}" id="chkConsulta${q.id}" />
+            <label class="form-check-label flex-grow-1" for="chkConsulta${q.id}">
+                <div class="fw-semibold">${q.nombre}</div>
+                <small class="text-muted">${q.descripcion}</small>
+            </label>
+            <button type="button" class="btn btn-sm btn-outline-danger btn-deshabilitar-consulta" data-id="${q.id}">
+                Deshabilitar
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-primary btn-editar-consulta" data-id="${q.id}">
+                Editar
+            </button>
+        `;
             listaConsultasDashboard.appendChild(div);
         });
+
         document.querySelectorAll(".btn-editar-consulta").forEach((btn) => {
             btn.addEventListener("click", () => abrirModalEditarConsulta(parseInt(btn.getAttribute("data-id"), 10)));
+        });
+
+        document.querySelectorAll(".btn-deshabilitar-consulta").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const id = parseInt(btn.getAttribute("data-id"), 10);
+                const consulta = consultas.find((c) => c.id === id);
+                if (!consulta) return;
+
+                consulta.habilitada = false;
+                renderConsultas();
+                actualizarResumen();
+            });
         });
     }
 
@@ -248,9 +345,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td>${item.nombre}</td>
                 <td>
                     ${item.estado === "error"
-                        ? `<button type="button" class="btn btn-sm btn-outline-danger btn-ver-tabla" data-cuadro="${item.nombre}">Ver tabla</button>`
-                        : `<span class="text-muted small">Sin errores</span>`
-                    }
+                    ? `<button type="button" class="btn btn-sm btn-outline-danger btn-ver-tabla" data-cuadro="${item.nombre}">Ver tabla</button>`
+                    : `<span class="text-muted small">Sin errores</span>`
+                }
                 </td>
             `;
             cuadrosDashboardBody.appendChild(tr);
@@ -444,7 +541,10 @@ document.addEventListener("DOMContentLoaded", () => {
             contrasena: sqlContrasena.value.trim(),
             puerto: sqlPuerto.value.trim(),
             tabla: tabla ? tabla.nombre : "",
-            campos: [...campoSeleccionadoLista]
+            campos: [...campoSeleccionadoLista],
+            fechaInicial: Array.from(mesesInicialesConsulta.querySelectorAll("input:checked")).map((el) => el.value),
+            fechaFinal: Array.from(mesesFinalesConsulta.querySelectorAll("input:checked")).map((el) => el.value),
+            diaHabil: document.querySelector('input[name="diaHabilConsulta"]:checked')?.value || "ultimo"
         };
         if (consultaAEditarId !== null) {
             const idx = consultas.findIndex((c) => c.id === consultaAEditarId);
@@ -513,10 +613,21 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    document.addEventListener("change", (e) => {
+        if (
+            e.target.closest("#mesesInicialesConsulta") ||
+            e.target.name === "diaHabilConsulta"
+        ) {
+            actualizarConsultaSQLConMes();
+        }
+    });
+
     renderConsultas();
     generarEstadoCuadros();
     actualizarResumen();
     renderCuadrosDashboard("todos");
     cargarTablasEnSelector();
     renderCamposSeleccionados();
+    renderMesesConsulta();
 });
+

@@ -7,8 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileList = document.getElementById("fileList");
     const btnUpload = document.getElementById("btnUpload");
     const btnVerCuadrosArchivos = document.getElementById("btnVerCuadrosArchivos");
-    const cuadrosArchivosBody = document.getElementById("cuadrosArchivosBody");
-    const textoExaminarCuadroArchivos = document.getElementById("textoExaminarCuadroArchivos");
     const uploadSummary = document.getElementById("uploadSummary");
     const uploadSummaryText = document.getElementById("uploadSummaryText");
     const uploadToast = document.getElementById("uploadToast");
@@ -43,6 +41,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnSeleccionarTodos = document.getElementById("btnSeleccionarTodos");
     const btnGuardarCuadrosBD = document.getElementById("btnGuardarCuadrosBD");
 
+    const resumenCargaArchivos = document.getElementById("resumenCargaArchivos");
+    const resumenOkCarga = document.getElementById("resumenOkCarga");
+    const resumenErrorCarga = document.getElementById("resumenErrorCarga");
+    const resumenTodosCarga = document.getElementById("resumenTodosCarga");
+    const tablaCuadrosCargaBody = document.getElementById("tablaCuadrosCargaBody");
+    const tituloModalCuadrosCarga = document.getElementById("tituloModalCuadrosCarga");
+    const tituloDetalleCuadroCarga = document.getElementById("tituloDetalleCuadroCarga");
+    const textoDetalleCuadroCarga = document.getElementById("textoDetalleCuadroCarga");
+    const tablaDetalleCuadroCargaBody = document.getElementById("tablaDetalleCuadroCargaBody");
+
     const btnConectarSQL = document.getElementById("btnConectarSQL");
     const btnProbarConexion = document.getElementById("btnProbarConexion");
     const btnLimpiarConexion = document.getElementById("btnLimpiarConexion");
@@ -57,12 +65,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnAgregarCamposSeleccion = document.getElementById("btnAgregarCamposSeleccion");
     const btnLimpiarCamposSeleccion = document.getElementById("btnLimpiarCamposSeleccion");
     const camposSeleccionados = document.getElementById("camposSeleccionados");
-
     const mesesInicialesConsulta = document.getElementById("mesesInicialesConsulta");
     const mesesFinalesConsulta = document.getElementById("mesesFinalesConsulta");
-
-    const ultimoDiaHabil = document.getElementById("ultimoDiaHabil");
-    const penultimoDiaHabil = document.getElementById("penultimoDiaHabil");
+    const btnCargarBaseDatosArchivos = document.getElementById("btnCargarBaseDatosArchivos");
 
     const tablasEjemplo = [
         { nombre: "saldos", campos: ["id", "cuenta", "subcuenta", "fecha", "saldo_inicial", "saldo_final"] },
@@ -91,80 +96,10 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
 
     let estadoCuadros = [];
-    let campoSeleccionadoLista = [];
-    let consultaAEditarId = null;
     let selectedFiles = [];
     let filtroCuadrosActual = "todos";
-
-    function obtenerDiaHabilDesdeMes(mesNombre, tipoDia = "ultimo") {
-        const meses = {
-            "Enero": 0, "Febrero": 1, "Marzo": 2, "Abril": 3,
-            "Mayo": 4, "Junio": 5, "Julio": 6, "Agosto": 7,
-            "Septiembre": 8, "Octubre": 9, "Noviembre": 10, "Diciembre": 11
-        };
-
-        const ahora = new Date();
-        const anio = ahora.getFullYear();
-        const mes = meses[mesNombre];
-        if (mes === undefined) return "";
-
-        let fecha = new Date(anio, mes + 1, 0);
-
-        if (tipoDia === "penultimo") {
-            fecha.setDate(fecha.getDate() - 1);
-        }
-
-        while (fecha.getDay() === 0 || fecha.getDay() === 6) {
-            fecha.setDate(fecha.getDate() - 1);
-        }
-
-        return fecha.toLocaleDateString("es-ES");
-    }
-
-    function actualizarConsultaSQLConMes() {
-        const mesInicialSeleccionado = Array.from(
-            document.querySelectorAll("#mesesInicialesConsulta input:checked")
-        )[0]?.value;
-
-        const tipoDia = document.querySelector('input[name="diaHabilConsulta"]:checked')?.value || "ultimo";
-
-        if (!mesInicialSeleccionado || !textoConsultaSQL) return;
-
-        const fechaCalculada = obtenerDiaHabilDesdeMes(mesInicialSeleccionado, tipoDia);
-
-        textoConsultaSQL.value = `SELECT *\nFROM tu_tabla\nWHERE fecha = '${fechaCalculada}'`;
-    }
-
-    function renderMesesConsulta() {
-        const meses = [
-            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-        ];
-
-        const mesActual = new Date().getMonth();
-        const mesAnterior = mesActual === 0 ? 11 : mesActual - 1;
-
-        const crearCheckMes = (mes, prefijo, idx, checked = false) => `
-        <div class="col">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="${mes}" id="${prefijo}${idx}" ${checked ? "checked" : ""}>
-                <label class="form-check-label" for="${prefijo}${idx}">${mes}</label>
-            </div>
-        </div>
-    `;
-
-        if (mesesInicialesConsulta) {
-            mesesInicialesConsulta.innerHTML = meses
-                .map((mes, idx) => crearCheckMes(mes, "mesIni", idx, idx === mesAnterior))
-                .join("");
-        }
-
-        if (mesesFinalesConsulta) {
-            mesesFinalesConsulta.innerHTML = meses
-                .map((mes, idx) => crearCheckMes(mes, "mesFin", idx, idx === mesAnterior))
-                .join("");
-        }
-    }
+    let campoSeleccionadoLista = [];
+    let consultaAEditarId = null;
 
     function getMesAnteriorActual() {
         const fecha = new Date();
@@ -204,28 +139,29 @@ document.addEventListener("DOMContentLoaded", () => {
         if (txtOperacionesPrevio) txtOperacionesPrevio.textContent = `${data.operacionesConsultas || 0} consultas · ${data.operacionesCuadros || 0} cuadros`;
     }
 
+    function mostrarCuadrosEstadisticos() {
+        dashboardResumen.style.display = "flex";
+        seccionCuadrosDashboard.style.display = "block";
+        renderCuadrosDashboard("todos");
+    }
+
     function renderConsultas() {
         if (!listaConsultasDashboard) return;
         listaConsultasDashboard.innerHTML = "";
-
         const consultasVisibles = consultas.filter((q) => q.habilitada !== false);
 
         consultasVisibles.forEach((q) => {
             const div = document.createElement("div");
             div.className = "list-group-item d-flex align-items-center gap-2";
             div.innerHTML = `
-            <input class="form-check-input me-2" type="checkbox" value="${q.id}" id="chkConsulta${q.id}" />
-            <label class="form-check-label flex-grow-1" for="chkConsulta${q.id}">
-                <div class="fw-semibold">${q.nombre}</div>
-                <small class="text-muted">${q.descripcion}</small>
-            </label>
-            <button type="button" class="btn btn-sm btn-outline-danger btn-deshabilitar-consulta" data-id="${q.id}">
-                Deshabilitar
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-primary btn-editar-consulta" data-id="${q.id}">
-                Editar
-            </button>
-        `;
+                <input class="form-check-input me-2" type="checkbox" value="${q.id}" id="chkConsulta${q.id}" />
+                <label class="form-check-label flex-grow-1" for="chkConsulta${q.id}">
+                    <div class="fw-semibold">${q.nombre}</div>
+                    <small class="text-muted">${q.descripcion}</small>
+                </label>
+                <button type="button" class="btn btn-sm btn-outline-danger btn-deshabilitar-consulta" data-id="${q.id}">Deshabilitar</button>
+                <button type="button" class="btn btn-sm btn-outline-primary btn-editar-consulta" data-id="${q.id}">Editar</button>
+            `;
             listaConsultasDashboard.appendChild(div);
         });
 
@@ -238,7 +174,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 const id = parseInt(btn.getAttribute("data-id"), 10);
                 const consulta = consultas.find((c) => c.id === id);
                 if (!consulta) return;
-
                 consulta.habilitada = false;
                 renderConsultas();
                 actualizarResumen();
@@ -317,13 +252,13 @@ document.addEventListener("DOMContentLoaded", () => {
     function generarEstadoCuadros() {
         const nombresCuadros = Array.from({ length: 35 }, (_, i) => `Cuadro estadístico ${String(i + 1).padStart(2, "0")}`);
         estadoCuadros = nombresCuadros.map((nombre, index) => {
-            const estado = Math.random() < 0.2 ? "error" : "ok";
+            const estado = index % 5 === 0 ? "error" : "ok";
             return {
                 nombre,
                 estado,
                 errores: estado === "error" ? [
-                    { registro: index + 101, campo: "Fecha", valor: "", problema: "Campo vacío" },
-                    { registro: index + 101, campo: "Saldo inicial", valor: "null", problema: "Dato incorrecto" }
+                    { registro: index + 1, campo: "Importe", valor: "null", problema: "Dato inválido" },
+                    { registro: index + 2, campo: "Fecha", valor: "", problema: "Campo vacío" }
                 ] : []
             };
         });
@@ -352,13 +287,12 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
             cuadrosDashboardBody.appendChild(tr);
         });
+
         document.querySelectorAll(".btn-ver-tabla").forEach((btn) => {
             btn.addEventListener("click", () => {
                 const cuadro = estadoCuadros.find((c) => c.nombre === btn.getAttribute("data-cuadro"));
                 if (!cuadro) return;
-                if (tituloErrorCuadro) {
-                    tituloErrorCuadro.textContent = `El cuadro "${cuadro.nombre}" presenta los siguientes errores:`;
-                }
+                if (tituloErrorCuadro) tituloErrorCuadro.textContent = `El cuadro "${cuadro.nombre}" presenta los siguientes errores:`;
                 if (tablaErroresBody) {
                     tablaErroresBody.innerHTML = cuadro.errores.map((err) => `<tr><td>${err.registro}</td><td>${err.campo}</td><td>${err.valor}</td><td>${err.problema}</td></tr>`).join("");
                 }
@@ -384,20 +318,154 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function guardarCuadrosEnBD() {
-        const filtrados = filtroCuadrosActual === "todos"
-            ? estadoCuadros
-            : estadoCuadros.filter((c) => c.estado === filtroCuadrosActual);
-
-        if (filtrados.length === 0) {
-            alert("No hay cuadros para guardar con el filtro actual.");
-            return;
-        }
-
+        const filtrados = filtroCuadrosActual === "todos" ? estadoCuadros : estadoCuadros.filter((c) => c.estado === filtroCuadrosActual);
+        if (filtrados.length === 0) return alert("No hay cuadros para guardar con el filtro actual.");
         const total = filtrados.length;
         const errores = filtrados.filter((c) => c.estado === "error").length;
         const ok = filtrados.filter((c) => c.estado === "ok").length;
-
         alert(`Guardando en BD ${total} cuadro(s): ${ok} OK y ${errores} con error.`);
+    }
+
+    function obtenerDiaHabilDesdeMes(mesNombre, tipoDia = "ultimo") {
+        const meses = {
+            "Enero": 0, "Febrero": 1, "Marzo": 2, "Abril": 3, "Mayo": 4, "Junio": 5,
+            "Julio": 6, "Agosto": 7, "Septiembre": 8, "Octubre": 9, "Noviembre": 10, "Diciembre": 11
+        };
+        const ahora = new Date();
+        const anio = ahora.getFullYear();
+        const mes = meses[mesNombre];
+        if (mes === undefined) return "";
+        let fecha = new Date(anio, mes + 1, 0);
+        if (tipoDia === "penultimo") fecha.setDate(fecha.getDate() - 1);
+        while (fecha.getDay() === 0 || fecha.getDay() === 6) fecha.setDate(fecha.getDate() - 1);
+        return fecha.toLocaleDateString("es-ES");
+    }
+
+    function renderMesesConsulta() {
+        const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        const mesActual = new Date().getMonth();
+        const mesAnterior = mesActual === 0 ? 11 : mesActual - 1;
+        const crearCheckMes = (mes, prefijo, idx, checked = false) => `
+            <div class="col">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="${mes}" id="${prefijo}${idx}" ${checked ? "checked" : ""}>
+                    <label class="form-check-label" for="${prefijo}${idx}">${mes}</label>
+                </div>
+            </div>
+        `;
+        if (mesesInicialesConsulta) {
+            mesesInicialesConsulta.innerHTML = meses.map((mes, idx) => crearCheckMes(mes, "mesIni", idx, idx === mesAnterior)).join("");
+        }
+        if (mesesFinalesConsulta) {
+            mesesFinalesConsulta.innerHTML = meses.map((mes, idx) => crearCheckMes(mes, "mesFin", idx, idx === mesAnterior)).join("");
+        }
+    }
+
+    function actualizarConsultaSQLConMes() {
+        const mesInicialSeleccionado = Array.from(document.querySelectorAll("#mesesInicialesConsulta input:checked"))[0]?.value;
+        const tipoDia = document.querySelector('input[name="diaHabilConsulta"]:checked')?.value || "ultimo";
+        if (!mesInicialSeleccionado || !textoConsultaSQL) return;
+        const fechaCalculada = obtenerDiaHabilDesdeMes(mesInicialSeleccionado, tipoDia);
+        textoConsultaSQL.value = `SELECT *\nFROM tu_tabla\nWHERE fecha = '${fechaCalculada}'`;
+    }
+
+    function generarCuadrosDesdeArchivos() {
+        const nombres = Array.from({ length: 35 }, (_, i) => `Cuadro estadístico ${String(i + 1).padStart(2, "0")}`);
+        return nombres.map((nombre, index) => {
+            const estado = index % 5 === 0 ? "error" : "ok";
+            return {
+                nombre,
+                estado,
+                errores: estado === "error" ? [
+                    { registro: index + 1, campo: "Importe", valor: "null", problema: "Dato inválido" },
+                    { registro: index + 2, campo: "Fecha", valor: "", problema: "Campo vacío" }
+                ] : []
+            };
+        });
+    }
+
+    function abrirDetalleCuadroCarga(cuadro) {
+        if (!cuadro || !tablaDetalleCuadroCargaBody) return;
+        if (tituloDetalleCuadroCarga) {
+            tituloDetalleCuadroCarga.textContent = `Detalle del cuadro: ${cuadro.nombre}`;
+        }
+        if (textoDetalleCuadroCarga) {
+            textoDetalleCuadroCarga.textContent = `Se muestran los errores detectados en "${cuadro.nombre}".`;
+        }
+        tablaDetalleCuadroCargaBody.innerHTML = cuadro.errores.map((err) => `
+            <tr>
+                <td>${err.registro}</td>
+                <td>${err.campo}</td>
+                <td>${err.valor}</td>
+                <td>${err.problema}</td>
+            </tr>
+        `).join("");
+        const modalEl = document.getElementById("modalDetalleCuadroCarga");
+        if (modalEl) bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    }
+
+    function abrirModalCuadrosCarga(filtro = "todos") {
+        // Genera la lista simulada de cuadros que se actualizaron a partir de la carga de archivos
+        const cuadros = generarCuadrosDesdeArchivos();
+        const filtrados = filtro === "todos" ? cuadros : cuadros.filter((c) => c.estado === filtro);
+
+        // Título del modal según filtro
+        if (tituloModalCuadrosCarga) {
+            tituloModalCuadrosCarga.textContent =
+                filtro === "ok" ? "Cuadros actualizados correctamente" :
+                    filtro === "error" ? "Cuadros con error" :
+                        "Todos los cuadros actualizados";
+        }
+
+        // Actualizar resumen de tarjetas (OK, Error, Todos)
+        if (resumenOkCarga) resumenOkCarga.textContent = String(cuadros.filter((c) => c.estado === "ok").length);
+        if (resumenErrorCarga) resumenErrorCarga.textContent = String(cuadros.filter((c) => c.estado === "error").length);
+        if (resumenTodosCarga) resumenTodosCarga.textContent = String(cuadros.length);
+
+        // Cuerpo de la tabla del modal
+        if (tablaCuadrosCargaBody) {
+            tablaCuadrosCargaBody.innerHTML = filtrados.map((item) => `
+            <tr>
+                <td>
+                    <span class="badge ${item.estado === "error" ? "bg-danger" : "bg-success"}">
+                        ${item.estado === "error" ? "Error" : "OK"}
+                    </span>
+                </td>
+                <td>${item.nombre}</td>
+                <td>
+                    ${item.estado === "error"
+                    ? `
+                                <!-- Igual que en Dashboard SQL: botón Detalle + etiqueta de estado -->
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-danger btn-detalle-cuadro-carga"
+                                        data-cuadro="${item.nombre}">
+                                    Detalle
+                                </button>
+                                
+                              `
+                    : `
+                                <!-- Homologado con Dashboard SQL para cuadros OK -->
+                                <span class="text-muted small">Sin errores</span>
+                              `
+                }
+                </td>
+            </tr>
+        `).join("");
+        }
+
+        // Eventos para botón Detalle (solo cuadros con error)
+        document.querySelectorAll(".btn-detalle-cuadro-carga").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const cuadro = generarCuadrosDesdeArchivos().find(
+                    (c) => c.nombre === btn.getAttribute("data-cuadro")
+                );
+                abrirDetalleCuadroCarga(cuadro);
+            });
+        });
+
+        // Mostrar el modal
+        const modalEl = document.getElementById("modalCuadrosCarga");
+        if (modalEl) bootstrap.Modal.getOrCreateInstance(modalEl).show();
     }
 
     menuLinks.forEach((link) => link.addEventListener("click", (e) => {
@@ -438,7 +506,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return "Otro";
     }
 
-    if (fileInput) fileInput.addEventListener("change", (e) => {
+    fileInput?.addEventListener("change", (e) => {
         selectedFiles.push(...Array.from(e.target.files));
         renderFileList();
     });
@@ -453,42 +521,52 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    if (btnUpload) btnUpload.addEventListener("click", () => {
+    btnCargarBaseDatosArchivos?.addEventListener("click", () => {
+        // Aquí simulas el envío de los cuadros actualizados a la base de datos
+        const cuadros = generarCuadrosDesdeArchivos();
+        const total = cuadros.length;
+        const ok = cuadros.filter((c) => c.estado === "ok").length;
+        const error = cuadros.filter((c) => c.estado === "error").length;
+
+        alert(`Se enviarán a la base de datos ${total} cuadro(s): ${ok} OK y ${error} con error.`);
+        // En tu implementación real, aquí llamarías al servicio que guarda en BD.
+    });
+
+    btnUpload?.addEventListener("click", () => {
         if (selectedFiles.length === 0) return;
         const total = selectedFiles.length;
         const typeCounts = selectedFiles.reduce((acc, file) => {
             acc[getFileType(file.name)]++;
             return acc;
         }, { PDF: 0, Excel: 0, Imagen: 0, Otro: 0 });
-        if (uploadSummary) {
-            uploadSummary.className = "alert alert-info";
-            uploadSummary.classList.remove("d-none");
-            uploadSummaryText.innerHTML = `<div>Total de archivos: <strong>${total}</strong></div><div class="mt-1">PDF: <strong>${typeCounts.PDF}</strong> · Excel: <strong>${typeCounts.Excel}</strong> · Imágenes: <strong>${typeCounts.Imagen}</strong> · Otros: <strong>${typeCounts.Otro}</strong></div><div class="mt-1 text-success">Carga simulada completada con éxito.</div>`;
-        }
+
+        // uploadSummary.className = "alert alert-info";
+        // uploadSummary.classList.remove("d-none");
+        // uploadSummaryText.innerHTML = `<div>Total de archivos: <strong>${total}</strong></div><div class="mt-1">PDF: <strong>${typeCounts.PDF}</strong> · Excel: <strong>${typeCounts.Excel}</strong> · Imágenes: <strong>${typeCounts.Imagen}</strong> · Otros: <strong>${typeCounts.Otro}</strong></div><div class="mt-1 text-success">Carga simulada completada con éxito.</div>`;
+
         if (uploadToast && uploadToastBody) {
             uploadToast.className = "toast text-bg-success";
             uploadToastBody.textContent = `Se cargaron ${total} archivo(s) correctamente.`;
             bootstrap.Toast.getOrCreateInstance(uploadToast).show();
         }
+
         selectedFiles = [];
         renderFileList();
         if (btnVerCuadrosArchivos) btnVerCuadrosArchivos.classList.remove("d-none");
+
+        generarEstadoCuadros();
+        mostrarCuadrosEstadisticos();
+        actualizarResumen();
+
+        if (resumenCargaArchivos) resumenCargaArchivos.classList.remove("d-none");
+        const cuadros = generarCuadrosDesdeArchivos();
+        if (resumenOkCarga) resumenOkCarga.textContent = String(cuadros.filter((c) => c.estado === "ok").length);
+        if (resumenErrorCarga) resumenErrorCarga.textContent = String(cuadros.filter((c) => c.estado === "error").length);
+        if (resumenTodosCarga) resumenTodosCarga.textContent = String(cuadros.length);
     });
 
-    if (btnVerCuadrosArchivos) btnVerCuadrosArchivos.addEventListener("click", () => {
-        const modalEl = document.getElementById("modalCuadrosArchivos");
-        const nombresCuadros = Array.from({ length: 35 }, (_, i) => `Cuadro estadístico ${String(i + 1).padStart(2, "0")}`);
-        cuadrosArchivosBody.innerHTML = nombresCuadros.map((nombre, index) => {
-            const ok = index % 4 !== 0;
-            return `<tr><td><input class="estado-checkbox" type="checkbox" ${ok ? "checked" : ""} disabled /></td><td>${nombre}</td><td>${ok ? "" : `<button type="button" class="btn btn-sm btn-outline-warning btn-examinar-archivo" data-cuadro="${nombre}">Examinar</button>`}</td></tr>`;
-        }).join("");
-        document.querySelectorAll(".btn-examinar-archivo").forEach((btn) => {
-            btn.addEventListener("click", () => {
-                textoExaminarCuadroArchivos.textContent = `El cuadro "${btn.getAttribute("data-cuadro")}" tiene información incorrecta o incompleta.`;
-                new bootstrap.Modal(document.getElementById("modalExaminarCuadroArchivos")).show();
-            });
-        });
-        if (modalEl) bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    document.querySelectorAll("[data-filtro-carga]").forEach((card) => {
+        card.addEventListener("click", () => abrirModalCuadrosCarga(card.getAttribute("data-filtro-carga") || "todos"));
     });
 
     btnConectarSQL?.addEventListener("click", () => {
@@ -497,8 +575,6 @@ document.addEventListener("DOMContentLoaded", () => {
             mensajeConexion.classList.remove("d-none");
             mensajeConexion.textContent = "Conexión establecida correctamente.";
         }
-        const tab = document.querySelector('[data-bs-target="#tab-tablas"]');
-        if (tab) bootstrap.Tab.getOrCreateInstance(tab).show();
     });
 
     btnProbarConexion?.addEventListener("click", () => {
@@ -531,6 +607,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const nombre = nombreConsulta.value.trim();
         if (!nombre) return;
         const tabla = tablasEjemplo[parseInt(selectorTabla.value, 10)];
+        const diaHabil = document.querySelector('input[name="diaHabilConsulta"]:checked')?.value || "ultimo";
         const payload = {
             nombre,
             descripcion: descripcionConsulta.value.trim(),
@@ -542,9 +619,8 @@ document.addEventListener("DOMContentLoaded", () => {
             puerto: sqlPuerto.value.trim(),
             tabla: tabla ? tabla.nombre : "",
             campos: [...campoSeleccionadoLista],
-            fechaInicial: Array.from(mesesInicialesConsulta.querySelectorAll("input:checked")).map((el) => el.value),
-            fechaFinal: Array.from(mesesFinalesConsulta.querySelectorAll("input:checked")).map((el) => el.value),
-            diaHabil: document.querySelector('input[name="diaHabilConsulta"]:checked')?.value || "ultimo"
+            diaHabil,
+            habilitada: true
         };
         if (consultaAEditarId !== null) {
             const idx = consultas.findIndex((c) => c.id === consultaAEditarId);
@@ -563,6 +639,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (seleccionados.length === 0) return alert("Selecciona una consulta para actualizarla.");
         const nombre = nombreConsulta.value.trim();
         const tabla = tablasEjemplo[parseInt(selectorTabla.value, 10)];
+        const diaHabil = document.querySelector('input[name="diaHabilConsulta"]:checked')?.value || "ultimo";
         seleccionados.forEach((chk) => {
             const idx = consultas.findIndex((c) => c.id === parseInt(chk.value, 10));
             if (idx !== -1) {
@@ -577,7 +654,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     contrasena: sqlContrasena.value.trim() || consultas[idx].contrasena,
                     puerto: sqlPuerto.value.trim() || consultas[idx].puerto,
                     tabla: tabla ? tabla.nombre : consultas[idx].tabla,
-                    campos: campoSeleccionadoLista.length ? [...campoSeleccionadoLista] : consultas[idx].campos
+                    campos: campoSeleccionadoLista.length ? [...campoSeleccionadoLista] : consultas[idx].campos,
+                    diaHabil
                 };
             }
         });
@@ -597,29 +675,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const seleccionados = Array.from(document.querySelectorAll('#listaConsultasDashboard input[type="checkbox"]:checked'));
         if (seleccionados.length === 0) return alert("Selecciona al menos una consulta para ejecutar.");
         generarEstadoCuadros();
-        dashboardResumen.style.display = "flex";
-        seccionCuadrosDashboard.style.display = "block";
+        mostrarCuadrosEstadisticos();
         actualizarResumen();
-        renderCuadrosDashboard("todos");
         if (btnSeleccionarTodos) btnSeleccionarTodos.textContent = "Seleccionar todos";
     });
 
     btnGuardarCuadrosBD?.addEventListener("click", guardarCuadrosEnBD);
 
     document.querySelectorAll(".resumen-card").forEach((card) => {
-        card.addEventListener("click", () => {
-            const filtro = card.getAttribute("data-filtro") || "todos";
-            renderCuadrosDashboard(filtro);
-        });
-    });
-
-    document.addEventListener("change", (e) => {
-        if (
-            e.target.closest("#mesesInicialesConsulta") ||
-            e.target.name === "diaHabilConsulta"
-        ) {
-            actualizarConsultaSQLConMes();
-        }
+        card.addEventListener("click", () => renderCuadrosDashboard(card.getAttribute("data-filtro") || "todos"));
     });
 
     renderConsultas();
@@ -629,5 +693,6 @@ document.addEventListener("DOMContentLoaded", () => {
     cargarTablasEnSelector();
     renderCamposSeleccionados();
     renderMesesConsulta();
+    actualizarConsultaSQLConMes();
 });
 

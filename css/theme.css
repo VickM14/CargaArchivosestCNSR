@@ -168,3 +168,15 @@ body {
 .table-hover tbody tr:hover {
     background-color: rgba(13, 110, 253, 0.04);
 }
+
+.badge-anio-pendiente {
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.15);
+}
+
+.badge-anio-pendiente {
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.18);
+}

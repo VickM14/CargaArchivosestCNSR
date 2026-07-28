@@ -69,6 +69,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const mesesFinalesConsulta = document.getElementById("mesesFinalesConsulta");
     const btnCargarBaseDatosArchivos = document.getElementById("btnCargarBaseDatosArchivos");
 
+    const alertaPendientesPrevios = document.getElementById("alertaPendientesPrevios");
+    const textoPendientesPrevios = document.getElementById("textoPendientesPrevios");
+
+    const mesesPendientesTexto = "Existen pendientes de 3 meses hacia atrás respecto al mes en proceso. Además, hay 1 cuadro estadístico de un año anterior aún sin actualizar.";
+
+    const indicadoresPendientesPrevios = document.getElementById("indicadoresPendientesPrevios");
+    const pendientesAgrupadosPorAnio = document.getElementById("pendientesAgrupadosPorAnio");
+
+    const semaforoPendientesContainer = document.getElementById("semaforoPendientesContainer");
+
+
+    const botonesPendientesPorAnio = document.getElementById("botonesPendientesPorAnio");
+    const panelMesesPendientes = document.getElementById("panelMesesPendientes");
+    const anioPendienteActivo = document.getElementById("anioPendienteActivo");
+    const mesesPendientesActivos = document.getElementById("mesesPendientesActivos");
+    const btnCerrarPanelMesesPendientes = document.getElementById("btnCerrarPanelMesesPendientes");
+
+
     const tablasEjemplo = [
         { nombre: "saldos", campos: ["id", "cuenta", "subcuenta", "fecha", "saldo_inicial", "saldo_final"] },
         { nombre: "movimientos", campos: ["id", "cuenta", "fecha", "concepto", "debe", "haber"] },
@@ -101,11 +119,134 @@ document.addEventListener("DOMContentLoaded", () => {
     let campoSeleccionadoLista = [];
     let consultaAEditarId = null;
 
+
+    function agruparPendientesPorAnio(listaPendientes = []) {
+        return listaPendientes.reduce((acc, item) => {
+            const anio = String(item.anio);
+            if (!acc[anio]) acc[anio] = [];
+            acc[anio].push(item.mes);
+            return acc;
+        }, {});
+    }
+
+    function renderSemaforoPendientes(listaPendientes = []) {
+        if (!botonesPendientesPorAnio || !panelMesesPendientes || !anioPendienteActivo || !mesesPendientesActivos) return;
+
+        const agrupados = agruparPendientesPorAnio(listaPendientes);
+        const anios = Object.keys(agrupados).sort((a, b) => Number(b) - Number(a));
+
+        botonesPendientesPorAnio.innerHTML = "";
+        panelMesesPendientes.classList.add("d-none");
+        anioPendienteActivo.textContent = "--";
+        mesesPendientesActivos.innerHTML = "";
+
+        if (anios.length === 0) {
+            botonesPendientesPorAnio.innerHTML = `<span class="badge bg-success">Sin pendientes de actualización</span>`;
+            return;
+        }
+
+        botonesPendientesPorAnio.innerHTML = anios.map((anio) => `
+        <button type="button"
+                class="btn btn-outline-warning btn-sm rounded-pill shadow-sm btn-anio-pendiente"
+                data-anio="${anio}">
+            Año ${anio}
+        </button>
+    `).join("");
+
+        const btns = botonesPendientesPorAnio.querySelectorAll(".btn-anio-pendiente");
+
+        const mostrarMeses = (anio) => {
+            const meses = agrupados[anio] || [];
+            anioPendienteActivo.textContent = anio;
+            mesesPendientesActivos.innerHTML = meses.map((mes) => `
+            <span class="badge rounded-pill bg-warning text-dark px-3 py-2">${mes}</span>
+        `).join("");
+            panelMesesPendientes.classList.remove("d-none");
+        };
+
+        btns.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                btns.forEach((b) => {
+                    b.classList.remove("btn-warning");
+                    b.classList.add("btn-outline-warning");
+                });
+                btn.classList.remove("btn-outline-warning");
+                btn.classList.add("btn-warning");
+                mostrarMeses(btn.getAttribute("data-anio"));
+            });
+        });
+
+        if (btnCerrarPanelMesesPendientes) {
+            btnCerrarPanelMesesPendientes.addEventListener("click", () => {
+                panelMesesPendientes.classList.add("d-none");
+            });
+        }
+    }
+
+
+
+
+    function renderPendientesAgrupados(listaPendientes = []) {
+        if (!pendientesAgrupadosPorAnio) return;
+
+        const agrupados = agruparPendientesPorAnio(listaPendientes);
+        const anios = Object.keys(agrupados).sort((a, b) => Number(b) - Number(a));
+
+        if (anios.length === 0) {
+            pendientesAgrupadosPorAnio.innerHTML = `
+            <span class="badge bg-success">Sin pendientes</span>
+        `;
+            return;
+        }
+
+        pendientesAgrupadosPorAnio.innerHTML = anios.map((anio, index) => {
+            const collapseId = `pendientesAnio${anio}`;
+            const meses = agrupados[anio].map((mes) => `
+            <span class="badge bg-warning text-dark me-1 mb-1">${mes}</span>
+        `).join("");
+
+            return `
+            <div class="border rounded p-2 bg-white w-100">
+                <button class="btn btn-outline-warning w-100 text-start"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#${collapseId}"
+                        aria-expanded="${index === 0 ? "true" : "false"}"
+                        aria-controls="${collapseId}">
+                    Año ${anio} <span class="badge bg-warning text-dark ms-2">${agrupados[anio].length} pendiente(s)</span>
+                </button>
+                <div class="collapse ${index > 0 ? "show" : ""} mt-2" id="${collapseId}">
+                    <div class="d-flex flex-wrap gap-1">
+                        ${meses}
+                    </div>
+                </div>
+            </div>
+        `;
+        }).join("");
+    }
+
     function getMesAnteriorActual() {
         const fecha = new Date();
         fecha.setMonth(fecha.getMonth() - 1);
         const texto = fecha.toLocaleDateString("es-ES", { month: "long", year: "numeric" });
         return texto.charAt(0).toUpperCase() + texto.slice(1);
+    }
+
+    function renderIndicadoresPendientes(listaPendientes = []) {
+        if (!indicadoresPendientesPrevios) return;
+
+        if (!listaPendientes.length) {
+            indicadoresPendientesPrevios.innerHTML = `
+            <span class="badge bg-success">Sin pendientes</span>
+        `;
+            return;
+        }
+
+        indicadoresPendientesPrevios.innerHTML = listaPendientes.map((item) => `
+        <span class="badge bg-warning text-dark">
+            ${item.anio} · ${item.mes}
+        </span>
+    `).join("");
     }
 
     function calcularResumenPorArea(consultasArr, estadoCuadrosArr) {
@@ -131,12 +272,17 @@ document.addEventListener("DOMContentLoaded", () => {
         if (txtUltimaCarga) txtUltimaCarga.textContent = data.ultimaCarga || "Sin registros previos";
         if (badgeEstadoCarga) badgeEstadoCarga.textContent = data.estadoCarga || "Pendiente";
         if (barraProgresoCarga) barraProgresoCarga.style.width = `${data.progreso || 0}%`;
+
         if (badgeFinanzasPrevio) badgeFinanzasPrevio.textContent = `${data.finanzasPct || 0}%`;
         if (badgeOperacionesPrevio) badgeOperacionesPrevio.textContent = `${data.operacionesPct || 0}%`;
         if (barraFinanzasPrevio) barraFinanzasPrevio.style.width = `${data.finanzasPct || 0}%`;
         if (barraOperacionesPrevio) barraOperacionesPrevio.style.width = `${data.operacionesPct || 0}%`;
         if (txtFinanzasPrevio) txtFinanzasPrevio.textContent = `${data.finanzasConsultas || 0} consultas · ${data.finanzasCuadros || 0} cuadros`;
         if (txtOperacionesPrevio) txtOperacionesPrevio.textContent = `${data.operacionesConsultas || 0} consultas · ${data.operacionesCuadros || 0} cuadros`;
+
+        // renderPendientesAgrupados(data.pendientes || []);
+
+        renderSemaforoPendientes(data.pendientes || []);
     }
 
     function mostrarCuadrosEstadisticos() {
@@ -159,7 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div class="fw-semibold">${q.nombre}</div>
                     <small class="text-muted">${q.descripcion}</small>
                 </label>
-                <button type="button" class="btn btn-sm btn-outline-danger btn-deshabilitar-consulta" data-id="${q.id}">Deshabilitar</button>
+                
                 <button type="button" class="btn btn-sm btn-outline-primary btn-editar-consulta" data-id="${q.id}">Editar</button>
             `;
             listaConsultasDashboard.appendChild(div);
@@ -312,6 +458,14 @@ document.addEventListener("DOMContentLoaded", () => {
             ultimaCarga: "19/07/2026 18:40",
             estadoCarga: "En validación",
             progreso: 45,
+            pendientes: [
+                { anio: 2025, mes: "Enero" },
+                { anio: 2025, mes: "Febrero" },
+                { anio: 2026, mes: "Marzo" },
+                { anio: 2026, mes: "Abril" }
+            ],
+
+            //mesesPendientesTexto: "Existen pendientes de 3 meses hacia atrás respecto al mes en proceso. Además, hay 1 cuadro estadístico de un año anterior aún sin actualizar.",
             ...calcularResumenPorArea(consultas, estadoCuadros)
         });
         renderCuadrosDashboard(filtroCuadrosActual);

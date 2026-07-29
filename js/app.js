@@ -87,6 +87,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnCerrarPanelMesesPendientes = document.getElementById("btnCerrarPanelMesesPendientes");
 
 
+
+
     const tablasEjemplo = [
         { nombre: "saldos", campos: ["id", "cuenta", "subcuenta", "fecha", "saldo_inicial", "saldo_final"] },
         { nombre: "movimientos", campos: ["id", "cuenta", "fecha", "concepto", "debe", "haber"] },
@@ -103,14 +105,14 @@ document.addEventListener("DOMContentLoaded", () => {
     let consultas = [
         { id: 1, nombre: "Consulta de Operaciones 1", descripcion: "Saldos iniciales y finales", sql: "SELECT * FROM saldos", servidor: "localhost", baseDatos: "contabilidad", usuario: "sa", contrasena: "****", puerto: "1433", tabla: "saldos", campos: ["id", "cuenta", "subcuenta", "fecha", "saldo_inicial", "saldo_final"], habilitada: true },
         { id: 2, nombre: "Consulta de Operaciones 2", descripcion: "Movimientos por cuenta y subcuenta", sql: "SELECT * FROM movimientos", servidor: "servidor2", baseDatos: "contabilidad", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "movimientos", campos: ["id", "cuenta", "fecha", "concepto", "debe", "haber"], habilitada: true },
-        { id: 3, nombre: "Consulta de Finanzas 1", descripcion: "Resumen por fondo", sql: "SELECT * FROM fondos", servidor: "localhost", baseDatos: "fondos_db", usuario: "sa", contrasena: "****", puerto: "1433", tabla: "fondos", campos: ["id", "fondo", "descripcion", "saldo"], habilitada: true },
-        { id: 4, nombre: "Consulta de Finanzas 2", descripcion: "Resumen por entidad", sql: "SELECT * FROM entidades", servidor: "servidor3", baseDatos: "entidades_db", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "entidades", campos: ["id", "entidad", "tipo", "estatus"], habilitada: true },
+        { id: 3, nombre: "Consulta de Financieros 1", descripcion: "Resumen por fondo", sql: "SELECT * FROM fondos", servidor: "localhost", baseDatos: "fondos_db", usuario: "sa", contrasena: "****", puerto: "1433", tabla: "fondos", campos: ["id", "fondo", "descripcion", "saldo"], habilitada: true },
+        { id: 4, nombre: "Consulta de Financieros 2", descripcion: "Resumen por entidad", sql: "SELECT * FROM entidades", servidor: "servidor3", baseDatos: "entidades_db", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "entidades", campos: ["id", "entidad", "tipo", "estatus"], habilitada: true },
         { id: 5, nombre: "Consulta de Operaciones 3", descripcion: "Cierre de cuentas", sql: "SELECT * FROM cierre_mensual", servidor: "localhost", baseDatos: "contabilidad", usuario: "sa", contrasena: "****", puerto: "1433", tabla: "cierre_mensual", campos: ["id", "mes", "anio", "cuenta", "saldo"], habilitada: true },
-        { id: 6, nombre: "Consulta de Finanzas 3", descripcion: "Resumen de operaciones", sql: "SELECT * FROM cierre_anual", servidor: "servidor4", baseDatos: "cierre_db", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "cierre_anual", campos: ["id", "anio", "cuenta", "saldo"], habilitada: true },
+        { id: 6, nombre: "Consulta de Financieros 3", descripcion: "Resumen de operaciones", sql: "SELECT * FROM cierre_anual", servidor: "servidor4", baseDatos: "cierre_db", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "cierre_anual", campos: ["id", "anio", "cuenta", "saldo"], habilitada: true },
         { id: 7, nombre: "Consulta de Operaciones 4", descripcion: "Registros con inconsistencias", sql: "SELECT * FROM errores", servidor: "localhost", baseDatos: "auditoria_db", usuario: "sa", contrasena: "****", puerto: "1433", tabla: "errores", campos: ["id", "tabla", "campo", "descripcion", "fecha"], habilitada: true },
-        { id: 8, nombre: "Consulta de Finanzas 4", descripcion: "Auditoría de cuentas clave", sql: "SELECT * FROM auditoria", servidor: "servidor5", baseDatos: "auditoria_db", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "auditoria", campos: ["id", "usuario", "accion", "fecha", "detalle"], habilitada: true },
+        { id: 8, nombre: "Consulta de Financieros 4", descripcion: "Auditoría de cuentas clave", sql: "SELECT * FROM auditoria", servidor: "servidor5", baseDatos: "auditoria_db", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "auditoria", campos: ["id", "usuario", "accion", "fecha", "detalle"], habilitada: true },
         { id: 9, nombre: "Consulta de Operaciones 5", descripcion: "Conciliación bancaria", sql: "SELECT * FROM conciliacion", servidor: "localhost", baseDatos: "bancos_db", usuario: "sa", contrasena: "****", puerto: "1433", tabla: "conciliacion", campos: ["id", "banco", "fecha", "concepto", "importe"], habilitada: true },
-        { id: 10, nombre: "Consulta de Finanzas 5", descripcion: "Reportes ejecutivos", sql: "SELECT * FROM reportes", servidor: "servidor6", baseDatos: "reportes_db", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "reportes", campos: ["id", "reporte", "fecha_generacion", "usuario"], habilitada: true }
+        { id: 10, nombre: "Consulta de Financieros 5", descripcion: "Reportes ejecutivos", sql: "SELECT * FROM reportes", servidor: "servidor6", baseDatos: "reportes_db", usuario: "admin", contrasena: "****", puerto: "1433", tabla: "reportes", campos: ["id", "reporte", "fecha_generacion", "usuario"], habilitada: true }
     ];
 
     let estadoCuadros = [];
@@ -119,6 +121,12 @@ document.addEventListener("DOMContentLoaded", () => {
     let campoSeleccionadoLista = [];
     let consultaAEditarId = null;
 
+
+    //Para ña fecha de la consulta
+
+
+
+    //Inicia Semaforo de meses pendientes
 
     function agruparPendientesPorAnio(listaPendientes = []) {
         return listaPendientes.reduce((acc, item) => {
@@ -250,9 +258,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function calcularResumenPorArea(consultasArr, estadoCuadrosArr) {
-        const consultasFinanzas = consultasArr.filter((c) => (c.nombre || "").toLowerCase().includes("finanzas")).length;
+        const consultasFinanzas = consultasArr.filter((c) => (c.nombre || "").toLowerCase().includes("financiero")).length;
         const consultasOperaciones = consultasArr.filter((c) => (c.nombre || "").toLowerCase().includes("operaciones")).length;
-        const cuadrosFinanzas = estadoCuadrosArr.filter((c) => (c.nombre || "").toLowerCase().includes("finanzas")).length;
+        const cuadrosFinanzas = estadoCuadrosArr.filter((c) => (c.nombre || "").toLowerCase().includes("financiero")).length;
         const cuadrosOperaciones = estadoCuadrosArr.filter((c) => (c.nombre || "").toLowerCase().includes("operaciones")).length;
         const finanzasBase = consultasFinanzas + cuadrosFinanzas;
         const operacionesBase = consultasOperaciones + cuadrosOperaciones;
@@ -517,7 +525,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function actualizarConsultaSQLConMes() {
         const mesInicialSeleccionado = Array.from(document.querySelectorAll("#mesesInicialesConsulta input:checked"))[0]?.value;
-        const tipoDia = document.querySelector('input[name="diaHabilConsulta"]:checked')?.value || "ultimo";
+        //const tipoDia = document.querySelector('input[name="diaHabilConsulta"]:checked')?.value || "ultimo";
+        const tipoDia = document.querySelector('input[name="diaHabilConsulta "]:checked')?.value || "ultimo";
         if (!mesInicialSeleccionado || !textoConsultaSQL) return;
         const fechaCalculada = obtenerDiaHabilDesdeMes(mesInicialSeleccionado, tipoDia);
         textoConsultaSQL.value = `SELECT *\nFROM tu_tabla\nWHERE fecha = '${fechaCalculada}'`;
@@ -761,7 +770,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const nombre = nombreConsulta.value.trim();
         if (!nombre) return;
         const tabla = tablasEjemplo[parseInt(selectorTabla.value, 10)];
-        const diaHabil = document.querySelector('input[name="diaHabilConsulta"]:checked')?.value || "ultimo";
+        const diaHabil = document.querySelector('input[name="btnUltimoDiaHabil "]:checked')?.value || "ultimo";
         const payload = {
             nombre,
             descripcion: descripcionConsulta.value.trim(),
@@ -793,7 +802,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (seleccionados.length === 0) return alert("Selecciona una consulta para actualizarla.");
         const nombre = nombreConsulta.value.trim();
         const tabla = tablasEjemplo[parseInt(selectorTabla.value, 10)];
-        const diaHabil = document.querySelector('input[name="diaHabilConsulta"]:checked')?.value || "ultimo";
+        const diaHabil = document.querySelector('input[name="btnUltimoDiaHabil "]:checked')?.value || "ultimo";
         seleccionados.forEach((chk) => {
             const idx = consultas.findIndex((c) => c.id === parseInt(chk.value, 10));
             if (idx !== -1) {

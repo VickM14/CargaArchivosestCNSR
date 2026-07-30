@@ -523,6 +523,169 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    //Para la actualizacion de la cisulta con la fecha de ultimo dia habil o penultimo dia habil
+
+    const contenedorMesesIniciales = document.getElementById("mesesInicialesConsulta");
+    const contenedorMesesFinales = document.getElementById("mesesFinalesConsulta");
+    const ultimoDiaHabilRadio = document.getElementById("ultimoDiaHabil");
+    const penultimoDiaHabilRadio = document.getElementById("penultimoDiaHabil");
+    //const textoConsultaSQL = document.getElementById("textoConsultaSQL");
+
+    let tipoDiaHabilSeleccionado = "ultimo"; // "ultimo" o "penultimo"
+
+    // Convertir nombre de mes → índice (0-11)
+    const mapaMeses = {
+        "Enero": 0,
+        "Febrero": 1,
+        "Marzo": 2,
+        "Abril": 3,
+        "Mayo": 4,
+        "Junio": 5,
+        "Julio": 6,
+        "Agosto": 7,
+        "Septiembre": 8,
+        "Octubre": 9,
+        "Noviembre": 10,
+        "Diciembre": 11
+    };
+
+    function esDiaHabil(date) {
+        const dia = date.getDay();
+        return dia !== 0 && dia !== 6; // 0 domingo, 6 sábado
+    }
+
+    function ultimoDiaHabilDelMes(anio, mesIndex) {
+        const fecha = new Date(anio, mesIndex + 1, 0); // último día calendario del mes (ej. 31)
+        while (!esDiaHabil(fecha)) {
+            fecha.setDate(fecha.getDate() - 1);
+        }
+        return fecha;
+    }
+
+    function penultimoDiaHabilDelMes(anio, mesIndex) {
+        const ultima = ultimoDiaHabilDelMes(anio, mesIndex);
+        const fecha = new Date(ultima);
+        do {
+            fecha.setDate(fecha.getDate() - 1);
+        } while (!esDiaHabil(fecha));
+        return fecha;
+    }
+
+    function formatearFechaCorta(date) {
+        return date.toLocaleDateString("es-ES", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric"
+        });
+    }
+
+    function obtenerMesSeleccionado(contenedor, prefijoId) {
+        if (!contenedor) return null;
+        const checkboxes = contenedor.querySelectorAll(`input.form-check-input[id^="${prefijoId}"]`);
+        let mesSeleccionado = null;
+
+        checkboxes.forEach((chk) => {
+            if (chk.checked) {
+                mesSeleccionado = chk.value;
+            }
+        });
+
+        return mesSeleccionado;
+    }
+
+    function actualizarConsultaSQL() {
+        if (!textoConsultaSQL) return;
+
+        const mesInicialNombre = obtenerMesSeleccionado(contenedorMesesIniciales, "mesIni");
+        const mesFinalNombre = obtenerMesSeleccionado(contenedorMesesFinales, "mesFin");
+
+        if (!mesInicialNombre) {
+            textoConsultaSQL.value = "Selecciona un mes inicial y una opción de día hábil.";
+            return;
+        }
+
+        const mesInicialIndex = mapaMeses[mesInicialNombre];
+        const anioActual = new Date().getFullYear(); // puedes ajustar si usas otro año
+
+        const fechaCorte = tipoDiaHabilSeleccionado === "ultimo"
+            ? ultimoDiaHabilDelMes(anioActual, mesInicialIndex)
+            : penultimoDiaHabilDelMes(anioActual, mesInicialIndex);
+
+        const etiquetaDia = tipoDiaHabilSeleccionado === "ultimo"
+            ? "Último día hábil"
+            : "Penúltimo día hábil";
+
+        const textoMesFinal = mesFinalNombre ? mesFinalNombre + " " + anioActual : "sin mes final";
+
+        // Aquí colocas la "consulta" que quieres mostrar; por ahora, texto descriptivo:
+        // textoConsultaSQL.value =  `/* Consulta sobre periodo */\n` +
+        //     `-- Mes inicial: ${mesInicialNombre} ${anioActual}\n` +
+        //     `-- Corte: ${etiquetaDia} = ${formatearFechaCorta(fechaCorte)}\n` +
+        //     `-- Mes final: ${textoMesFinal}\n\n` +
+        //     `SELECT ... /* SQL aquí, usando ${formatearFechaCorta(fechaCorte)} como fecha de corte */`;
+
+        textoConsultaSQL.value = `SELECT * From NombreTabla Where Fecha ${formatearFechaCorta(fechaCorte)} `;
+
+
+
+
+
+    }
+
+    function configurarEventosMesesConsulta() {
+        if (contenedorMesesIniciales) {
+            contenedorMesesIniciales.addEventListener("change", (ev) => {
+                const target = ev.target;
+                if (target && target.classList.contains("form-check-input")) {
+                    // Solo un mes inicial seleccionado a la vez
+                    const checkboxes = contenedorMesesIniciales.querySelectorAll("input.form-check-input");
+                    checkboxes.forEach((chk) => {
+                        if (chk !== target) chk.checked = false;
+                    });
+                    actualizarConsultaSQL();
+                }
+            });
+        }
+
+        if (contenedorMesesFinales) {
+            contenedorMesesFinales.addEventListener("change", (ev) => {
+                const target = ev.target;
+                if (target && target.classList.contains("form-check-input")) {
+                    // Solo un mes final seleccionado a la vez
+                    const checkboxes = contenedorMesesFinales.querySelectorAll("input.form-check-input");
+                    checkboxes.forEach((chk) => {
+                        if (chk !== target) chk.checked = false;
+                    });
+                    actualizarConsultaSQL();
+                }
+            });
+        }
+
+        if (ultimoDiaHabilRadio) {
+            ultimoDiaHabilRadio.addEventListener("change", () => {
+                if (ultimoDiaHabilRadio.checked) {
+                    tipoDiaHabilSeleccionado = "ultimo";
+                    actualizarConsultaSQL();
+                }
+            });
+        }
+
+        if (penultimoDiaHabilRadio) {
+            penultimoDiaHabilRadio.addEventListener("change", () => {
+                if (penultimoDiaHabilRadio.checked) {
+                    tipoDiaHabilSeleccionado = "penultimo";
+                    actualizarConsultaSQL();
+                }
+            });
+        }
+    }
+
+
+
+
+
+    //fin de actualizacion de consuylta
+
     function actualizarConsultaSQLConMes() {
         const mesInicialSeleccionado = Array.from(document.querySelectorAll("#mesesInicialesConsulta input:checked"))[0]?.value;
         //const tipoDia = document.querySelector('input[name="diaHabilConsulta"]:checked')?.value || "ultimo";
@@ -857,5 +1020,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderCamposSeleccionados();
     renderMesesConsulta();
     actualizarConsultaSQLConMes();
+    actualizarConsultaSQL();
+    configurarEventosMesesConsulta();
 });
 

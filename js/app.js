@@ -87,6 +87,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnCerrarPanelMesesPendientes = document.getElementById("btnCerrarPanelMesesPendientes");
 
 
+    const btnMarcarTodosModal = document.getElementById("btnMarcarTodosModal");
+    const chkSeleccionarTodosCuadrosCarga = document.getElementById("chkSeleccionarTodosCuadrosCarga");
+
+    // Nuevas referencias para los selectores de mes tipo calendario
+    const mesInicialInput = document.getElementById("mesInicialInput");
+    const mesFinalInput = document.getElementById("mesFinalInput");
+
 
 
     const tablasEjemplo = [
@@ -423,13 +430,19 @@ document.addEventListener("DOMContentLoaded", () => {
         filtroCuadrosActual = filtro;
         cuadrosDashboardBody.innerHTML = "";
         const filtrados = filtro === "todos" ? estadoCuadros : estadoCuadros.filter((c) => c.estado === filtro);
+
         if (filtrados.length === 0) {
-            cuadrosDashboardBody.innerHTML = `<tr><td colspan="3" class="text-center text-muted py-3">No hay cuadros para mostrar con este filtro.</td></tr>`;
+            cuadrosDashboardBody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-3">No hay cuadros para mostrar con este filtro.</td></tr>`;
             return;
         }
+
         filtrados.forEach((item) => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
+                <td>
+                    <input type="checkbox" class="form-check-input chk-cuadro-dashboard" 
+                        aria-label="Seleccionar cuadro ${item.nombre}" />
+                </td>
                 <td><span class="badge ${item.estado === "error" ? "bg-danger" : "bg-success"}">${item.estado === "error" ? "Error" : "OK"}</span></td>
                 <td>${item.nombre}</td>
                 <td>
@@ -442,6 +455,7 @@ document.addEventListener("DOMContentLoaded", () => {
             cuadrosDashboardBody.appendChild(tr);
         });
 
+        // Eventos para ver la tabla de errores
         document.querySelectorAll(".btn-ver-tabla").forEach((btn) => {
             btn.addEventListener("click", () => {
                 const cuadro = estadoCuadros.find((c) => c.nombre === btn.getAttribute("data-cuadro"));
@@ -453,7 +467,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 new bootstrap.Modal(document.getElementById("modalVerTablaErrores")).show();
             });
         });
+
+        // Reiniciar el checkbox principal al re-renderizar
+        const chkMaster = document.getElementById("chkSeleccionarTodosDashboardTabla");
+        if (chkMaster) chkMaster.checked = false;
     }
+
+
 
     function actualizarResumen() {
         const seleccionados = Array.from(document.querySelectorAll('#listaConsultasDashboard input[type="checkbox"]:checked'));
@@ -504,23 +524,49 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function renderMesesConsulta() {
-        const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-        const mesActual = new Date().getMonth();
-        const mesAnterior = mesActual === 0 ? 11 : mesActual - 1;
-        const crearCheckMes = (mes, prefijo, idx, checked = false) => `
-            <div class="col">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="${mes}" id="${prefijo}${idx}" ${checked ? "checked" : ""}>
-                    <label class="form-check-label" for="${prefijo}${idx}">${mes}</label>
-                </div>
-            </div>
-        `;
-        if (mesesInicialesConsulta) {
-            mesesInicialesConsulta.innerHTML = meses.map((mes, idx) => crearCheckMes(mes, "mesIni", idx, idx === mesAnterior)).join("");
+
+        const fechaActual = new Date();
+        const anioActual = fechaActual.getFullYear();
+        const mesActual = String(fechaActual.getMonth() + 1).padStart(2, '0');
+        const formatoAnioMesActual = `${anioActual}-${mesActual}`;
+
+        // Definir un rango dinámico amplio (ej. 10 años atrás y 5 años adelante)
+        const anioMinimo = anioActual - 10;
+        const anioMaximo = anioActual + 5;
+
+        if (mesInicialInput) {
+            mesInicialInput.min = `${anioMinimo}-01`;
+            mesInicialInput.max = `${anioMaximo}-12`;
+            if (!mesInicialInput.value) {
+                mesInicialInput.value = formatoAnioMesActual;
+            }
         }
-        if (mesesFinalesConsulta) {
-            mesesFinalesConsulta.innerHTML = meses.map((mes, idx) => crearCheckMes(mes, "mesFin", idx, idx === mesAnterior)).join("");
+
+        if (mesFinalInput) {
+            mesFinalInput.min = `${anioMinimo}-01`;
+            mesFinalInput.max = `${anioMaximo}-12`;
+            if (!mesFinalInput.value) {
+                mesFinalInput.value = formatoAnioMesActual;
+            }
         }
+
+        // const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        // const mesActual = new Date().getMonth();
+        // const mesAnterior = mesActual === 0 ? 11 : mesActual - 1;
+        // const crearCheckMes = (mes, prefijo, idx, checked = false) => `
+        //     <div class="col">
+        //         <div class="form-check">
+        //             <input class="form-check-input" type="checkbox" value="${mes}" id="${prefijo}${idx}" ${checked ? "checked" : ""}>
+        //             <label class="form-check-label" for="${prefijo}${idx}">${mes}</label>
+        //         </div>
+        //     </div>
+        // `;
+        // if (mesesInicialesConsulta) {
+        //     mesesInicialesConsulta.innerHTML = meses.map((mes, idx) => crearCheckMes(mes, "mesIni", idx, idx === mesAnterior)).join("");
+        // }
+        // if (mesesFinalesConsulta) {
+        //     mesesFinalesConsulta.innerHTML = meses.map((mes, idx) => crearCheckMes(mes, "mesFin", idx, idx === mesAnterior)).join("");
+        // }
     }
 
     //Para la actualizacion de la cisulta con la fecha de ultimo dia habil o penultimo dia habil
@@ -593,44 +639,80 @@ document.addEventListener("DOMContentLoaded", () => {
         return mesSeleccionado;
     }
 
+    mesInicialInput?.addEventListener("change", actualizarConsultaSQL);
+    mesFinalInput?.addEventListener("change", actualizarConsultaSQL);
+
+    document.querySelectorAll('input[name="diaHabilConsulta"]').forEach((radio) => {
+        radio.addEventListener("change", actualizarConsultaSQL);
+    });
+
     function actualizarConsultaSQL() {
-        if (!textoConsultaSQL) return;
 
-        const mesInicialNombre = obtenerMesSeleccionado(contenedorMesesIniciales, "mesIni");
-        const mesFinalNombre = obtenerMesSeleccionado(contenedorMesesFinales, "mesFin");
+        const valorInicial = mesInicialInput ? mesInicialInput.value : ""; // Devuelve ej. "2026-06"
+        const valorFinal = mesFinalInput ? mesFinalInput.value : "";       // Devuelve ej. "2026-07"
 
-        if (!mesInicialNombre) {
-            textoConsultaSQL.value = "Selecciona un mes inicial y una opción de día hábil.";
-            return;
+        let anioIni = "", mesIni = "", anioFin = "", mesFin = "";
+
+        if (valorInicial) {
+            const partesIni = valorInicial.split("-");
+            anioIni = partesIni[0];
+            mesIni = partesIni[1];
         }
 
-        const mesInicialIndex = mapaMeses[mesInicialNombre];
-        const anioActual = new Date().getFullYear(); // puedes ajustar si usas otro año
+        if (valorFinal) {
+            const partesFin = valorFinal.split("-");
+            anioFin = partesFin[0];
+            mesFin = partesFin[1];
+        }
 
-        const fechaCorte = tipoDiaHabilSeleccionado === "ultimo"
-            ? ultimoDiaHabilDelMes(anioActual, mesInicialIndex)
-            : penultimoDiaHabilDelMes(anioActual, mesInicialIndex);
+        const tipoDia = document.querySelector('input[name="diaHabilConsulta"]:checked')?.value || "ultimo";
 
-        const etiquetaDia = tipoDiaHabilSeleccionado === "ultimo"
-            ? "Último día hábil"
-            : "Penúltimo día hábil";
-
-        const textoMesFinal = mesFinalNombre ? mesFinalNombre + " " + anioActual : "sin mes final";
-
-        // Aquí colocas la "consulta" que quieres mostrar; por ahora, texto descriptivo:
-        // textoConsultaSQL.value =  `/* Consulta sobre periodo */\n` +
-        //     `-- Mes inicial: ${mesInicialNombre} ${anioActual}\n` +
-        //     `-- Corte: ${etiquetaDia} = ${formatearFechaCorta(fechaCorte)}\n` +
-        //     `-- Mes final: ${textoMesFinal}\n\n` +
-        //     `SELECT ... /* SQL aquí, usando ${formatearFechaCorta(fechaCorte)} como fecha de corte */`;
-
-        textoConsultaSQL.value = `SELECT * From NombreTabla Where Fecha ${formatearFechaCorta(fechaCorte)} `;
+        // Lógica para reflejar los cambios en el textarea de textoConsultaSQL
+        const textareaSQL = document.getElementById("textoConsultaSQL");
+        if (textareaSQL) {
+            textareaSQL.value = `SELECT * FROM cuadros_estadisticos 
+WHERE (anio = '${anioIni}' AND mes >= '${mesIni}') 
+  AND (anio = '${anioFin}' AND mes <= '${mesFin}') 
+  AND tipo_dia_habil = '${tipoDia}';`;
+        }
 
 
 
+        // if (!textoConsultaSQL) return;
 
+        // const mesInicialNombre = obtenerMesSeleccionado(contenedorMesesIniciales, "mesIni");
+        // const mesFinalNombre = obtenerMesSeleccionado(contenedorMesesFinales, "mesFin");
+
+        // if (!mesInicialNombre) {
+        //     textoConsultaSQL.value = "Selecciona un mes inicial y una opción de día hábil.";
+        //     return;
+        // }
+
+        // const mesInicialIndex = mapaMeses[mesInicialNombre];
+        // const anioActual = new Date().getFullYear(); // puedes ajustar si usas otro año
+
+        // const fechaCorte = tipoDiaHabilSeleccionado === "ultimo"
+        //     ? ultimoDiaHabilDelMes(anioActual, mesInicialIndex)
+        //     : penultimoDiaHabilDelMes(anioActual, mesInicialIndex);
+
+        // const etiquetaDia = tipoDiaHabilSeleccionado === "ultimo"
+        //     ? "Último día hábil"
+        //     : "Penúltimo día hábil";
+
+        // const textoMesFinal = mesFinalNombre ? mesFinalNombre + " " + anioActual : "sin mes final";
+
+        // // Aquí colocas la "consulta" que quieres mostrar; por ahora, texto descriptivo:
+        // // textoConsultaSQL.value =  `/* Consulta sobre periodo */\n` +
+        // //     `-- Mes inicial: ${mesInicialNombre} ${anioActual}\n` +
+        // //     `-- Corte: ${etiquetaDia} = ${formatearFechaCorta(fechaCorte)}\n` +
+        // //     `-- Mes final: ${textoMesFinal}\n\n` +
+        // //     `SELECT ... /* SQL aquí, usando ${formatearFechaCorta(fechaCorte)} como fecha de corte */`;
+
+        // textoConsultaSQL.value = `SELECT * From NombreTabla Where Fecha ${formatearFechaCorta(fechaCorte)} `;
 
     }
+
+
 
     function configurarEventosMesesConsulta() {
         if (contenedorMesesIniciales) {
@@ -748,35 +830,28 @@ document.addEventListener("DOMContentLoaded", () => {
         if (resumenErrorCarga) resumenErrorCarga.textContent = String(cuadros.filter((c) => c.estado === "error").length);
         if (resumenTodosCarga) resumenTodosCarga.textContent = String(cuadros.length);
 
-        // Cuerpo de la tabla del modal
+        // Cuerpo de la tabla del modal (Alineado estrictamente a las 4 columnas del thead)
         if (tablaCuadrosCargaBody) {
             tablaCuadrosCargaBody.innerHTML = filtrados.map((item) => `
-            <tr>
-                <td>
-                    <span class="badge ${item.estado === "error" ? "bg-danger" : "bg-success"}">
-                        ${item.estado === "error" ? "Error" : "OK"}
-                    </span>
-                </td>
-                <td>${item.nombre}</td>
-                <td>
-                    ${item.estado === "error"
-                    ? `
-                                <!-- Igual que en Dashboard SQL: botón Detalle + etiqueta de estado -->
-                                <button type="button"
-                                        class="btn btn-sm btn-outline-danger btn-detalle-cuadro-carga"
-                                        data-cuadro="${item.nombre}">
-                                    Detalle
-                                </button>
-                                
-                              `
-                    : `
-                                <!-- Homologado con Dashboard SQL para cuadros OK -->
-                                <span class="text-muted small">Sin errores</span>
-                              `
+                <tr>
+                    <td>
+                        <input type="checkbox" class="form-check-input chk-cuadro-carga" 
+                            aria-label="Seleccionar cuadro ${item.nombre}" />
+                    </td>
+                    <td>
+                        <span class="badge ${item.estado === "error" ? "bg-danger" : "bg-success"}">
+                            ${item.estado === "error" ? "Error" : "OK"}
+                        </span>
+                    </td>
+                    <td>${item.nombre}</td>
+                    <td>
+                        ${item.estado === "error"
+                    ? `<button type="button" class="btn btn-sm btn-outline-danger btn-detalle-cuadro-carga" data-cuadro="${item.nombre}">Ver detalle</button>`
+                    : `<span class="text-muted small">Sin errores</span>`
                 }
-                </td>
-            </tr>
-        `).join("");
+                    </td>
+                </tr>
+            `).join("");
         }
 
         // Eventos para botón Detalle (solo cuadros con error)
@@ -789,10 +864,16 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-        // Mostrar el modal
+        // Reiniciar estado del checkbox maestro al abrir
+        const chkSeleccionarTodosCuadrosCarga = document.getElementById("chkSeleccionarTodosCuadrosCarga");
+        if (chkSeleccionarTodosCuadrosCarga) chkSeleccionarTodosCuadrosCarga.checked = false;
+
+        // Mostrar el modal usando Bootstrap
         const modalEl = document.getElementById("modalCuadrosCarga");
         if (modalEl) bootstrap.Modal.getOrCreateInstance(modalEl).show();
     }
+
+
 
     menuLinks.forEach((link) => link.addEventListener("click", (e) => {
         e.preventDefault();
@@ -801,6 +882,31 @@ document.addEventListener("DOMContentLoaded", () => {
         link.classList.add("active");
         sections.forEach((sec) => sec.classList.toggle("d-none", sec.id !== sectionId));
     }));
+
+
+
+    chkSeleccionarTodosCuadrosCarga?.addEventListener("change", () => {
+        const checkboxes = document.querySelectorAll(".chk-cuadro-carga");
+        checkboxes.forEach((chk) => {
+            chk.checked = chkSeleccionarTodosCuadrosCarga.checked;
+        });
+    });
+
+    // Funcionalidad extra para el botón de Seleccionar Todos superior
+    btnMarcarTodosModal?.addEventListener("click", () => {
+        const checkboxes = document.querySelectorAll(".chk-cuadro-carga");
+        const allChecked = Array.from(checkboxes).every((chk) => chk.checked);
+
+        checkboxes.forEach((chk) => {
+            chk.checked = !allChecked;
+        });
+
+        if (chkSeleccionarTodosCuadrosCarga) {
+            chkSeleccionarTodosCuadrosCarga.checked = !allChecked;
+        }
+
+        btnMarcarTodosModal.textContent = !allChecked ? "Deseleccionar todos" : "Seleccionar todos";
+    });
 
     function renderFileList() {
         if (!fileList) return;
@@ -1010,6 +1116,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll(".resumen-card").forEach((card) => {
         card.addEventListener("click", () => renderCuadrosDashboard(card.getAttribute("data-filtro") || "todos"));
+    });
+
+    // Lógica para el checkbox maestro de la tabla de cuadros estadísticos
+    const chkSeleccionarTodosDashboardTabla = document.getElementById("chkSeleccionarTodosDashboardTabla");
+    chkSeleccionarTodosDashboardTabla?.addEventListener("change", () => {
+        const checkboxes = document.querySelectorAll(".chk-cuadro-dashboard");
+        checkboxes.forEach((chk) => {
+            chk.checked = chkSeleccionarTodosDashboardTabla.checked;
+        });
+    });
+
+    // Lógica para el botón superior "Seleccionar todos / Deseleccionar todos"
+    const btnMarcarTodosDashboard = document.getElementById("btnMarcarTodosDashboard");
+    btnMarcarTodosDashboard?.addEventListener("click", () => {
+        const checkboxes = document.querySelectorAll(".chk-cuadro-dashboard");
+        const allChecked = Array.from(checkboxes).every((chk) => chk.checked);
+
+        checkboxes.forEach((chk) => {
+            chk.checked = !allChecked;
+        });
+
+        if (chkSeleccionarTodosDashboardTabla) {
+            chkSeleccionarTodosDashboardTabla.checked = !allChecked;
+        }
+
+        btnMarcarTodosDashboard.textContent = !allChecked ? "Deseleccionar todos" : "Seleccionar todos";
     });
 
     renderConsultas();

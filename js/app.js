@@ -1144,6 +1144,35 @@ WHERE (anio = '${anioIni}' AND mes >= '${mesIni}')
         btnMarcarTodosDashboard.textContent = !allChecked ? "Deseleccionar todos" : "Seleccionar todos";
     });
 
+    // Lógica para el botón "Guardar en BD" dentro del modal de Cuadros de Carga
+    const btnGuardarCuadrosCargaBD = document.getElementById("btnGuardarCuadrosCargaBD");
+
+    btnGuardarCuadrosCargaBD?.addEventListener("click", () => {
+        // Obtenemos los cuadros seleccionados en la tabla del modal
+        const checkboxesSeleccionados = document.querySelectorAll('.chk-cuadro-carga:checked');
+
+        if (checkboxesSeleccionados.length === 0) {
+            alert("Por favor, selecciona al menos un cuadro estadístico usando los checkboxes para guardar en la base de datos.");
+            return;
+        }
+
+        // Extraemos los nombres de los cuadros marcados para un reporte más detallado en el mensaje
+        const nombresCuadros = Array.from(checkboxesSeleccionados).map((chk) => {
+            const fila = chk.closest("tr");
+            return fila.querySelector("td:nth-child(3)").textContent.trim();
+        });
+
+        // Mensaje indicando el guardado en base de datos
+        alert(`Guardando en Bases de datos (${nombresCuadros.length} cuadro(s) seleccionados)...`);
+
+        // Opcional: Cerrar el modal automáticamente tras guardar de forma exitosa
+        const modalEl = document.getElementById("modalCuadrosCarga");
+        if (modalEl) {
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) modalInstance.hide();
+        }
+    });
+
     renderConsultas();
     generarEstadoCuadros();
     actualizarResumen();

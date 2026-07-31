@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         botonesPendientesPorAnio.innerHTML = anios.map((anio) => `
         <button type="button"
-                class="btn btn-outline-warning btn-sm rounded-pill shadow-sm btn-anio-pendiente"
+                class="badge rounded-pill bg-warning text-dark px-2 py-1  btn-anio-pendiente"
                 data-anio="${anio}">
             Año ${anio}
         </button>
@@ -443,13 +443,19 @@ document.addEventListener("DOMContentLoaded", () => {
                     <input type="checkbox" class="form-check-input chk-cuadro-dashboard" 
                         aria-label="Seleccionar cuadro ${item.nombre}" />
                 </td>
-                <td><span class="badge ${item.estado === "error" ? "bg-danger" : "bg-success"}">${item.estado === "error" ? "Error" : "OK"}</span></td>
+                    <span class="badge rounded-pill px-3 py-2 ${item.estado === "error" ? "bg-danger-subtle text-danger border border-danger-subtle" : "bg-success-subtle text-success border border-success-subtle"}">
+                            <i class="bi ${item.estado === "error" ? "bi-exclamation-triangle-fill" : "bi-check-circle-fill"} me-1"></i>
+                            ${item.estado === "error" ? "Error" : "OK"}
+                    </span>
+
+                    
+                </td>
                 <td>${item.nombre}</td>
                 <td>
-                    ${item.estado === "error"
-                    ? `<button type="button" class="btn btn-sm btn-outline-danger btn-ver-tabla" data-cuadro="${item.nombre}">Ver tabla</button>`
-                    : `<span class="text-muted small">Sin errores</span>`
-                }
+                    ${item.estado === "error" 
+                            ? `<button type="button" class="btn btn-sm btn-outline-danger px-3 btn-detalle-cuadro-carga" data-cuadro="${item.nombre}"><i class="bi bi-eye me-1"></i> Ver detalle</button>` 
+                            : `<span class="text-muted small italic">Sin incidencias</span>`
+                        }
                 </td>
             `;
             cuadrosDashboardBody.appendChild(tr);
@@ -812,49 +818,46 @@ WHERE (anio = '${anioIni}' AND mes >= '${mesIni}')
         if (modalEl) bootstrap.Modal.getOrCreateInstance(modalEl).show();
     }
 
-    function abrirModalCuadrosCarga(filtro = "todos") {
-        // Genera la lista simulada de cuadros que se actualizaron a partir de la carga de archivos
+   function abrirModalCuadrosCarga(filtro = "todos") {
         const cuadros = generarCuadrosDesdeArchivos();
         const filtrados = filtro === "todos" ? cuadros : cuadros.filter((c) => c.estado === filtro);
 
-        // Título del modal según filtro
         if (tituloModalCuadrosCarga) {
             tituloModalCuadrosCarga.textContent =
                 filtro === "ok" ? "Cuadros actualizados correctamente" :
-                    filtro === "error" ? "Cuadros con error" :
-                        "Todos los cuadros actualizados";
+                filtro === "error" ? "Cuadros con error de validación" :
+                "Todos los cuadros actualizados";
         }
 
-        // Actualizar resumen de tarjetas (OK, Error, Todos)
         if (resumenOkCarga) resumenOkCarga.textContent = String(cuadros.filter((c) => c.estado === "ok").length);
         if (resumenErrorCarga) resumenErrorCarga.textContent = String(cuadros.filter((c) => c.estado === "error").length);
         if (resumenTodosCarga) resumenTodosCarga.textContent = String(cuadros.length);
 
-        // Cuerpo de la tabla del modal (Alineado estrictamente a las 4 columnas del thead)
         if (tablaCuadrosCargaBody) {
             tablaCuadrosCargaBody.innerHTML = filtrados.map((item) => `
                 <tr>
-                    <td>
-                        <input type="checkbox" class="form-check-input chk-cuadro-carga" 
+                    <td class="text-center">
+                        <input type="checkbox" class="form-check-input chk-cuadro-carga cursor-pointer" 
                             aria-label="Seleccionar cuadro ${item.nombre}" />
                     </td>
                     <td>
-                        <span class="badge ${item.estado === "error" ? "bg-danger" : "bg-success"}">
+                        <span class="badge rounded-pill px-3 py-2 ${item.estado === "error" ? "bg-danger-subtle text-danger border border-danger-subtle" : "bg-success-subtle text-success border border-success-subtle"}">
+                            <i class="bi ${item.estado === "error" ? "bi-exclamation-triangle-fill" : "bi-check-circle-fill"} me-1"></i>
                             ${item.estado === "error" ? "Error" : "OK"}
                         </span>
                     </td>
-                    <td>${item.nombre}</td>
-                    <td>
-                        ${item.estado === "error"
-                    ? `<button type="button" class="btn btn-sm btn-outline-danger btn-detalle-cuadro-carga" data-cuadro="${item.nombre}">Ver detalle</button>`
-                    : `<span class="text-muted small">Sin errores</span>`
-                }
+                    <td class="fw-medium text-dark">${item.nombre}</td>
+                    <td class="text-end pe-4">
+                        ${item.estado === "error" 
+                            ? `<button type="button" class="btn btn-sm btn-outline-danger px-3 btn-detalle-cuadro-carga" data-cuadro="${item.nombre}"><i class="bi bi-eye me-1"></i> Ver detalle</button>` 
+                            : `<span class="text-muted small italic">Sin incidencias</span>`
+                        }
                     </td>
                 </tr>
             `).join("");
         }
 
-        // Eventos para botón Detalle (solo cuadros con error)
+        // Eventos para detalle
         document.querySelectorAll(".btn-detalle-cuadro-carga").forEach((btn) => {
             btn.addEventListener("click", () => {
                 const cuadro = generarCuadrosDesdeArchivos().find(
@@ -864,11 +867,9 @@ WHERE (anio = '${anioIni}' AND mes >= '${mesIni}')
             });
         });
 
-        // Reiniciar estado del checkbox maestro al abrir
         const chkSeleccionarTodosCuadrosCarga = document.getElementById("chkSeleccionarTodosCuadrosCarga");
         if (chkSeleccionarTodosCuadrosCarga) chkSeleccionarTodosCuadrosCarga.checked = false;
 
-        // Mostrar el modal usando Bootstrap
         const modalEl = document.getElementById("modalCuadrosCarga");
         if (modalEl) bootstrap.Modal.getOrCreateInstance(modalEl).show();
     }
@@ -1148,24 +1149,15 @@ WHERE (anio = '${anioIni}' AND mes >= '${mesIni}')
     const btnGuardarCuadrosCargaBD = document.getElementById("btnGuardarCuadrosCargaBD");
 
     btnGuardarCuadrosCargaBD?.addEventListener("click", () => {
-        // Obtenemos los cuadros seleccionados en la tabla del modal
-        const checkboxesSeleccionados = document.querySelectorAll('.chk-cuadro-carga:checked');
+        const seleccionadosCheck = document.querySelectorAll('.chk-cuadro-carga:checked');
 
-        if (checkboxesSeleccionados.length === 0) {
-            alert("Por favor, selecciona al menos un cuadro estadístico usando los checkboxes para guardar en la base de datos.");
+        if (seleccionadosCheck.length === 0) {
+            alert("Por favor, selecciona al menos un cuadro estadístico en la tabla antes de guardar.");
             return;
         }
 
-        // Extraemos los nombres de los cuadros marcados para un reporte más detallado en el mensaje
-        const nombresCuadros = Array.from(checkboxesSeleccionados).map((chk) => {
-            const fila = chk.closest("tr");
-            return fila.querySelector("td:nth-child(3)").textContent.trim();
-        });
+        alert("Guardando en Bases de datos...");
 
-        // Mensaje indicando el guardado en base de datos
-        alert(`Guardando en Bases de datos (${nombresCuadros.length} cuadro(s) seleccionados)...`);
-
-        // Opcional: Cerrar el modal automáticamente tras guardar de forma exitosa
         const modalEl = document.getElementById("modalCuadrosCarga");
         if (modalEl) {
             const modalInstance = bootstrap.Modal.getInstance(modalEl);
